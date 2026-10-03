@@ -20,7 +20,7 @@
 // programs, to improve the one part of the frame that already refuses history.
 // -----------------------------------------------------------------------------
 
-#include<ridePostCommon>
+#include<surferFlowPostCommon>
 
 varying vUV: vec2f;
 

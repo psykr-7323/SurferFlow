@@ -30,7 +30,7 @@ import vegetationLib from "./lib/vegetation.wgsl?glsl";
 import skyBakeFrag from "./skyBake.fragment.wgsl?glsl";
 import deformSimFrag from "./deformSim.fragment.wgsl?glsl";
 
-import rideVert from "./terrain.vertex.wgsl?glsl";
+import surferFlowVert from "./terrain.vertex.wgsl?glsl";
 import coastFrag from "./coast.fragment.wgsl?glsl";
 import depthVert from "./terrainDepth.vertex.wgsl?glsl";
 import depthFrag from "./terrainDepth.fragment.wgsl?glsl";
@@ -73,20 +73,20 @@ import crystalPrepassVert from "./crystalPrepass.vertex.wgsl?glsl";
 
 
 const INCLUDES = {
-    rideNoise: noiseLib,
-    rideTerrain: terrainLib,
-    rideShading: shadingLib,
-    rideShadowLookup: shadowLookupLib,
-    rideAtmosphere: atmosphereLib,
-    rideClipmap: clipmapLib,
-    rideDeform: deformLib,
-    rideCharSkin: charSkinLib,
-    rideWake: wakeLib,
-    rideSpellLights: spellLightsLib,
-    rideWater: waterLib,
-    rideCrystal: crystalLib,
-    ridePostCommon: postCommonLib,
-    rideRidge: ridgeLib,
+    surferFlowNoise: noiseLib,
+    surferFlowTerrain: terrainLib,
+    surferFlowShading: shadingLib,
+    surferFlowShadowLookup: shadowLookupLib,
+    surferFlowAtmosphere: atmosphereLib,
+    surferFlowClipmap: clipmapLib,
+    surferFlowDeform: deformLib,
+    surferFlowCharSkin: charSkinLib,
+    surferFlowWake: wakeLib,
+    surferFlowSpellLights: spellLightsLib,
+    surferFlowWater: waterLib,
+    surferFlowCrystal: crystalLib,
+    surferFlowPostCommon: postCommonLib,
+    surferFlowRidge: ridgeLib,
     coastProfile: coastLib,
     coastVegetation: vegetationLib,
 };
@@ -95,7 +95,7 @@ const SHADERS = {
     skyBakePixelShader: skyBakeFrag,
     deformSimPixelShader: deformSimFrag,
 
-    rideVertexShader: rideVert,
+    surferFlowVertexShader: surferFlowVert,
     coastPixelShader: coastFrag,
 
     terrainDepthVertexShader: depthVert,

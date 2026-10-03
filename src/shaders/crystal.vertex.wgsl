@@ -9,8 +9,8 @@
 // ice crystal is. Interpolated vertex normals would round the edges off and turn
 // a crystal into a lumpy cone, which is the one thing it must not look like.
 
-#include<rideNoise>
-#include<rideCrystal>
+#include<surferFlowNoise>
+#include<surferFlowCrystal>
 
 attribute position: vec3f;   // (crystal, vertex, unused)
 

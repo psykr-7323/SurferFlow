@@ -27,7 +27,7 @@
 // is not resolvable.
 // -----------------------------------------------------------------------------
 
-#include<rideNoise>
+#include<surferFlowNoise>
 
 varying vUV: vec2f;
 

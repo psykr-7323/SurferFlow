@@ -20,6 +20,7 @@
  * construction.
  */
 
+import { gaitStride } from "./controller.js";
 import { setFrameFromDir, invertRigid, mul, xformPoint } from "../core/mat4.js";
 
 // --------------------------------------------------------------- bone indices
@@ -241,12 +242,12 @@ export class Figure {
      * @param {import("./controller.js").CharacterController} ch
      */
     update(dt, ch) {
-        const h = Math.min(dt, 1 / 30);
+        const h = Math.max(0, Math.min(dt, 0.1));
         this._t += h;
 
         const surf = ch.surf;
         const speed = ch.speed;
-        const run = Math.min(1, speed / 5.4);
+        const run = clamp((speed - 2.5) / 2.9, 0, 1);
 
         // ---------------------------------------------------------- footfalls
         // Stance/swing is derived from the same distance-driven phase the
@@ -280,7 +281,8 @@ export class Figure {
         this.bob = damp(this.bob, bobWant, 18, h);
 
         // Crouch: a little at running speed, a lot on the board.
-        const crouch = 0.035 * run + surf * (0.13 + 0.05 * ch.speed01);
+        const crouch = (0.14 * clamp(speed / 2.5, 0, 1) + 0.04 * run) * (1 - surf)
+            + surf * (0.165 + 0.05 * ch.speed01);
         this.hipY = damp(this.hipY, HIP_HEIGHT - crouch, 9, h);
 
         // The figure settles into the snow it is standing on. Reading the real
@@ -403,7 +405,7 @@ export class Figure {
     _updateFeet(h, ch) {
         const surf = ch.surf;
         const speed = ch.speed;
-        const run = Math.min(1, speed / 5.4);
+        const run = clamp((speed - 2.5) / 2.9, 0, 1);
         // Duty factor: a walk keeps both feet down for a moment, a run has a
         // flight phase. Interpolating between them is what makes the transition
         // from walk to run read as a gait change and not a speed change.
@@ -414,7 +416,7 @@ export class Figure {
 
         // Half a stride ahead, scaled by speed — this is the step length, and it
         // has to match the controller's stride or the feet skate.
-        const half = 0.34 + 0.42 * run;
+        const half = Math.min(0.56, gaitStride(speed) * duty * 0.5);
         // The controller owns this decision — see `stepping` there. Re-deriving
         // it from `surf` here is how the feet and the footprints end up
         // disagreeing about whether the character is walking.
@@ -558,8 +560,9 @@ export class Figure {
      */
     _poseArms(h, ch, cx, cy, cz, rX, rY, rZ, uX, uY, uZ, fX, fY, fZ) {
         const surf = ch.surf;
-        const run = Math.min(1, ch.speed / 5.4);
-        const swing = Math.sin(2 * Math.PI * ch.gaitPhase) * (0.20 + 0.42 * run) * (1 - surf);
+        const run = clamp((ch.speed - 2.5) / 2.9, 0, 1);
+        const gaitActivity = clamp(ch.speed / 0.8, 0, 1) * (ch.stepping ? 1 : 0);
+        const swing = Math.sin(2 * Math.PI * ch.gaitPhase) * (0.30 + 0.32 * run) * (1 - surf) * gaitActivity;
         // Slow idle drift so a standing figure is never perfectly still.
         const idle = Math.sin(this._t * 0.9) * 0.02 + Math.sin(this._t * 1.7 + 1.3) * 0.012;
 
@@ -581,9 +584,9 @@ export class Figure {
             // does exactly what it is told — locks the elbow — and the figure
             // walks around with two straight poles for arms.
             const sw = swing * -sgn;
-            let tx = _sh[0] + fX * (sw * 0.38) - uX * 0.43 + rX * (sgn * 0.11);
-            let ty = _sh[1] + fY * (sw * 0.38) - uY * 0.43 + rY * (sgn * 0.11);
-            let tz = _sh[2] + fZ * (sw * 0.38) - uZ * 0.43 + rZ * (sgn * 0.11);
+            let tx = _sh[0] + fX * (sw * 0.38) - uX * (0.43 - run * 0.10) + rX * (sgn * 0.065);
+            let ty = _sh[1] + fY * (sw * 0.38) - uY * (0.43 - run * 0.10) + rY * (sgn * 0.065);
+            let tz = _sh[2] + fZ * (sw * 0.38) - uZ * (0.43 - run * 0.10) + rZ * (sgn * 0.065);
             ty += idle * sgn;
 
             // ---- cast target: both hands up and out along the aim -----------

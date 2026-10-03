@@ -58,9 +58,9 @@ function registerOceanShaders() {
     if (!ShaderStore.IncludesShadersStore.coastProfile) {
         ShaderStore.IncludesShadersStore.coastProfile = coastProfile;
     }
-    ShaderStore.ShadersStore.rideOceanVertexShader = oceanVertex;
-    ShaderStore.ShadersStore.rideOceanPixelShader = oceanFragment;
-    ShaderStore.ShadersStore.rideOceanPrepassPixelShader = oceanPrepassFragment;
+    ShaderStore.ShadersStore.surferFlowOceanVertexShader = oceanVertex;
+    ShaderStore.ShadersStore.surferFlowOceanPixelShader = oceanFragment;
+    ShaderStore.ShadersStore.surferFlowOceanPrepassPixelShader = oceanPrepassFragment;
 }
 
 /**
@@ -130,9 +130,9 @@ export class Ocean {
     _makeMaterial() {
         registerOceanShaders();
         const mat = new ShaderMaterial(
-            "rideOcean",
+            "surferFlowOcean",
             this.scene,
-            { vertex: "rideOcean", fragment: "rideOcean" },
+            { vertex: "surferFlowOcean", fragment: "surferFlowOcean" },
             {
                 attributes: ["position"],
                 uniforms: [
@@ -281,9 +281,9 @@ export class Ocean {
         registerOceanShaders();
 
         const mat = new ShaderMaterial(
-            "rideOceanPrepass",
+            "surferFlowOceanPrepass",
             this.scene,
-            { vertex: "rideOcean", fragment: "rideOceanPrepass" },
+            { vertex: "surferFlowOcean", fragment: "surferFlowOceanPrepass" },
             {
                 attributes: ["position"],
                 uniforms: [

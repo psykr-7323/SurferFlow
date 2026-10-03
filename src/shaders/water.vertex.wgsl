@@ -16,9 +16,9 @@
 // than any test, and — more usefully — it means "how many spells are up" never
 // changes which pipeline runs or how many draws there are.
 
-#include<rideNoise>
-#include<rideWake>
-#include<rideWater>
+#include<surferFlowNoise>
+#include<surferFlowWake>
+#include<surferFlowWater>
 
 attribute position: vec3f;   // (column, ring, strand)
 

@@ -5,8 +5,8 @@
 // matters because the shadow has to grow with the crystal rather than snapping
 // to full size on the frame it is planted.
 
-#include<rideNoise>
-#include<rideCrystal>
+#include<surferFlowNoise>
+#include<surferFlowCrystal>
 
 attribute position: vec3f;   // (crystal, vertex, unused)
 

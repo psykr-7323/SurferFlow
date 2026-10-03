@@ -2,8 +2,8 @@
 // pass and the shadow pass, and the fragment stage discards the same eroded
 // texels — a wall that is half powder must not occlude as if it were solid.
 
-#include<rideNoise>
-#include<rideWake>
+#include<surferFlowNoise>
+#include<surferFlowWake>
 
 attribute position: vec3f;   // (column, row, side)
 

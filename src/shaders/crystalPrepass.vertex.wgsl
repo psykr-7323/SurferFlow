@@ -6,8 +6,8 @@
 // the reflection pass can early-out on the mask and cost nothing at all on every
 // frame where nobody has cast Crystallise.
 
-#include<rideNoise>
-#include<rideCrystal>
+#include<surferFlowNoise>
+#include<surferFlowCrystal>
 
 attribute position: vec3f;   // (crystal, vertex, unused)
 

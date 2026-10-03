@@ -38,8 +38,19 @@ const LOOK_SCALE = 0.0022;
  * @param {HTMLCanvasElement} canvas
  */
 export function initInput(canvas) {
+    let dragging = false;
+    let lastX = 0, lastY = 0;
+    canvas.addEventListener("mousedown", (e) => {
+        if (e.button !== 0) return;
+        dragging = true;
+        lastX = e.clientX; lastY = e.clientY;
+    });
+    document.addEventListener("mouseup", () => { dragging = false; });
     canvas.addEventListener("click", () => {
-        if (!input.locked) canvas.requestPointerLock();
+        if (!input.locked) {
+            // Embedded browsers can reject pointer lock; drag-look still works.
+            try { canvas.requestPointerLock()?.catch(() => {}); } catch { /* drag fallback */ }
+        }
     });
 
     document.addEventListener("pointerlockchange", () => {
@@ -54,9 +65,12 @@ export function initInput(canvas) {
     });
 
     document.addEventListener("mousemove", (e) => {
-        if (!input.locked) return;
-        input.lookX += e.movementX * LOOK_SCALE;
-        input.lookY += e.movementY * LOOK_SCALE;
+        if (!input.locked && !dragging) return;
+        const dx = input.locked ? e.movementX : e.clientX - lastX;
+        const dy = input.locked ? e.movementY : e.clientY - lastY;
+        lastX = e.clientX; lastY = e.clientY;
+        input.lookX += dx * LOOK_SCALE;
+        input.lookY += dy * LOOK_SCALE;
     });
 
     document.addEventListener(

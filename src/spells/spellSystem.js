@@ -118,7 +118,7 @@ export class SpellSystem {
     }
 
     /**
-     * Declare a material that reads `rideSpellLights`.
+     * Declare a material that reads `surferFlowSpellLights`.
      * @param {...import("@babylonjs/core/Materials/shaderMaterial").ShaderMaterial} mats
      */
     addConsumers(...mats) {

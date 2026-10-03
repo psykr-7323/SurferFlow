@@ -16,12 +16,12 @@
 // the detail.
 // -----------------------------------------------------------------------------
 
-#include<rideNoise>
-#include<rideTerrain>
-#include<rideDeform>
-#include<rideShading>
-#include<rideSpellLights>
-#include<rideAtmosphere>
+#include<surferFlowNoise>
+#include<surferFlowTerrain>
+#include<surferFlowDeform>
+#include<surferFlowShading>
+#include<surferFlowSpellLights>
+#include<surferFlowAtmosphere>
 
 varying vWorld: vec3f;
 varying vHeightUV: vec2f;
@@ -95,7 +95,7 @@ uniform spellLightCount: f32;
 // the character material has to run the byte-identical lookup — the Y-flip
 // convention and the receiver-plane gradient are exactly the sort of thing that
 // two copies would quietly disagree about.
-#include<rideShadowLookup>
+#include<surferFlowShadowLookup>
 
 // -----------------------------------------------------------------------------
 
@@ -416,7 +416,7 @@ fn main(input: FragmentInputs) -> FragmentOutputs {
     var direct = albedo * INV_PI * sunRadiance * diff * shadow;
 
     // --- subsurface --------------------------------------------------------
-    let sss = rideSubsurface(
+    let sss = surferFlowSubsurface(
         N, L, V, sunRadiance, thickness,
         uniforms.sssStrength * (1.0 - rockExposed), uniforms.sssRadius
     );
@@ -480,7 +480,7 @@ fn main(input: FragmentInputs) -> FragmentOutputs {
     // a glint is a specular highlight from a crystal facet that the shading
     // normal does not represent.
     if (uniforms.glintIntensity > 0.001 && rockExposed < 0.5) {
-        let g = rideGlints(
+        let g = surferFlowGlints(
             world.xz, N, V, L, footprint,
             uniforms.glintIntensity, uniforms.glintGrazing
         );

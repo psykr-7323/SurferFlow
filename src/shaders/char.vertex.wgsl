@@ -1,6 +1,6 @@
 // The body: linear blend skinning straight out of the transform texture.
 
-#include<rideCharSkin>
+#include<surferFlowCharSkin>
 
 attribute position: vec3f;   // bind-pose world position
 attribute normal: vec3f;     // bind-pose world normal

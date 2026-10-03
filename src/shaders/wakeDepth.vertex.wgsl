@@ -6,8 +6,8 @@
 // shadow of a solid wall it is not actually rendering, which on a crest that is
 // half powder is the difference between a shadow and a stripe.
 
-#include<rideNoise>
-#include<rideWake>
+#include<surferFlowNoise>
+#include<surferFlowWake>
 
 attribute position: vec3f;   // (column, row, side)
 

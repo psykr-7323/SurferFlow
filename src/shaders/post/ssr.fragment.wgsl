@@ -20,7 +20,7 @@
 // can find it.
 // -----------------------------------------------------------------------------
 
-#include<ridePostCommon>
+#include<surferFlowPostCommon>
 
 varying vUV: vec2f;
 

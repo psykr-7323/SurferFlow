@@ -1,8 +1,8 @@
 // Depth for the surf wake — the same erosion the beauty pass applies, so the
 // depth map holds the eroded crest rather than the solid sheet underneath it.
 
-#include<rideNoise>
-#include<rideWake>
+#include<surferFlowNoise>
+#include<surferFlowWake>
 
 varying vQ: f32;
 varying vAlong: f32;

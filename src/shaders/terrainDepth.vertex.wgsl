@@ -6,8 +6,8 @@
 // acne against its own silhouette. Only the view-projection differs.
 
 #include<coastProfile>
-#include<rideDeform>
-#include<rideClipmap>
+#include<surferFlowDeform>
+#include<surferFlowClipmap>
 
 attribute position: vec3f;
 

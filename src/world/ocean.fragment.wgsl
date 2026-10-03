@@ -1,5 +1,5 @@
 #include<coastProfile>
-#include<rideNoise>
+#include<surferFlowNoise>
 
 // Opaque coastal ocean shading with depth color, wave crest foam, and a broken
 // moving run-up band at the world-space shoreline.

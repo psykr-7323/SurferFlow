@@ -1,5 +1,5 @@
 // -----------------------------------------------------------------------------
-// rideCrystal — the shape of a grown ice formation.
+// surferFlowCrystal — the shape of a grown ice formation.
 //
 // One crystal is a six-sided tapered prism with a point on it: a base ring
 // sitting in the snow, a shoulder ring where the taper starts, and an apex. That

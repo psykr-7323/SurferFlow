@@ -1,7 +1,7 @@
 // Depth-prepass vertex shader for the skinned body. Same skinning path as
 // char.vertex.wgsl and charDepth.vertex.wgsl, from the same include.
 
-#include<rideCharSkin>
+#include<surferFlowCharSkin>
 
 attribute position: vec3f;
 attribute boneIdx: vec4f;

@@ -9,8 +9,8 @@
 // mismatch.
 
 #include<coastProfile>
-#include<rideDeform>
-#include<rideClipmap>
+#include<surferFlowDeform>
+#include<surferFlowClipmap>
 
 attribute position: vec3f;
 

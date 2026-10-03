@@ -1,7 +1,7 @@
 // Depth prepass for the surf wake — the same erosion the beauty pass applies.
 
-#include<rideNoise>
-#include<rideWake>
+#include<surferFlowNoise>
+#include<surferFlowWake>
 
 varying vQ: f32;
 varying vAlong: f32;

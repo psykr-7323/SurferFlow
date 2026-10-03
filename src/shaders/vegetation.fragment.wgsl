@@ -1,7 +1,7 @@
-#include<rideNoise>
-#include<rideShading>
-#include<rideShadowLookup>
-#include<rideAtmosphere>
+#include<surferFlowNoise>
+#include<surferFlowShading>
+#include<surferFlowShadowLookup>
+#include<surferFlowAtmosphere>
 
 varying vWorld: vec3f;
 varying vNormal: vec3f;
@@ -55,7 +55,7 @@ fn main(input: FragmentInputs) -> FragmentOutputs {
 
     // A restrained leaf transmission term keeps back-lit grass readable while
     // sharing the same atmospheric and solar energy scale as the coast.
-    color += rideSubsurface(N, L, V, uniforms.sunRadiance, 0.22, 0.18, 0.7)
+    color += surferFlowSubsurface(N, L, V, uniforms.sunRadiance, 0.22, 0.18, 0.7)
         * albedo * shadow;
 
     let aerial = applyAerial(

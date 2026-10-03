@@ -7,7 +7,7 @@
 
 #include<coastProfile>
 
-#ifdef RIDE_CASCADE
+#ifdef SURFERFLOW_CASCADE
 varying vWorld: vec3f;
 uniform shorelineZ: f32;
 uniform coastlineVariation: f32;
@@ -15,7 +15,7 @@ uniform coastlineVariation: f32;
 
 @fragment
 fn main(input: FragmentInputs) -> FragmentOutputs {
-#ifdef RIDE_CASCADE
+#ifdef SURFERFLOW_CASCADE
     let shoreline = coastShorelineZ(
         input.vWorld.x, uniforms.shorelineZ, uniforms.coastlineVariation
     );

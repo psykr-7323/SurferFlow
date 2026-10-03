@@ -6,7 +6,7 @@ import { createWgslTypeContext, wgslToGlsl } from "./scripts/wgslToGlsl.js";
 
 const projectRoot = path.dirname(fileURLToPath(import.meta.url));
 
-function rideWebGlShaders() {
+function surferFlowWebGlShaders() {
     const shaderRoot = path.join(projectRoot, "src");
     let context;
 
@@ -24,7 +24,7 @@ function rideWebGlShaders() {
 
     rebuildContext();
     return {
-        name: "ride-wgsl-to-webgl2-glsl",
+        name: "surferflow-wgsl-to-webgl2-glsl",
         enforce: "pre",
         resolveId(source, importer) {
             const [relativePath, query] = source.split("?");
@@ -46,7 +46,7 @@ function rideWebGlShaders() {
 }
 
 export default defineConfig({
-    plugins: [rideWebGlShaders()],
+    plugins: [surferFlowWebGlShaders()],
     server: {
         port: 5173,
         strictPort: true,

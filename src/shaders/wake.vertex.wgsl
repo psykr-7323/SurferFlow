@@ -12,8 +12,8 @@
 // `wakePoint` cost less than the vertex shader spends on the spine fetch, and
 // they cannot disagree with the geometry because they *are* the geometry.
 
-#include<rideNoise>
-#include<rideWake>
+#include<surferFlowNoise>
+#include<surferFlowWake>
 
 attribute position: vec3f;   // (column, row, side)
 

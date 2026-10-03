@@ -6,7 +6,7 @@
 // square is what curves a strand instead of shearing it — the tip moves four
 // times as far as the midpoint.
 
-#include<rideCharSkin>
+#include<surferFlowCharSkin>
 
 attribute position: vec3f;   // bind-pose world position, shell offset included
 attribute normal: vec3f;     // shell direction, unit

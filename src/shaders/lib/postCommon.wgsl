@@ -1,5 +1,5 @@
 // -----------------------------------------------------------------------------
-// ridePostCommon — the conventions every screen-space pass shares.
+// surferFlowPostCommon — the conventions every screen-space pass shares.
 //
 // One place for the coordinate agreement, because getting it wrong is silent:
 // a vertically mirrored depth lookup still produces plausible-looking occlusion,

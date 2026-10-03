@@ -1,5 +1,5 @@
 // -----------------------------------------------------------------------------
-// rideDeform — the read side of the terrain state buffer.
+// surferFlowDeform — the read side of the terrain state buffer.
 //
 // Three consumers sample this: the snow vertex shader (displacement), the shadow
 // depth vertex shader (so carved snow casts its own shadow), and the snow

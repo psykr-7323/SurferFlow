@@ -6,6 +6,9 @@
 
 import { Vector2, Vector3, Color3 } from "@babylonjs/core/Maths/math";
 import { ProceduralTexture } from "@babylonjs/core/Materials/Textures/Procedurals/proceduralTexture";
+import { RawTexture } from "@babylonjs/core/Materials/Textures/rawTexture";
+import { Texture } from "@babylonjs/core/Materials/Textures/texture";
+import { makeStarField } from "../core/starField.js";
 import { Constants } from "@babylonjs/core/Engines/constants";
 import { ShaderMaterial } from "@babylonjs/core/Materials/shaderMaterial";
 import { ShaderLanguage } from "@babylonjs/core/Materials/shaderLanguage";
@@ -143,13 +146,18 @@ export class Sky {
                     "fogStart",
                     "aerialStrength",
                 ],
-                samplers: ["skyLUT"],
+                samplers: ["skyLUT", "starAtlas"],
                 shaderLanguage: ShaderLanguage.GLSL,
             }
         );
         mat.backFaceCulling = false;
         mat.disableDepthWrite = true;
         mat.setTexture("skyLUT", this.lut);
+        this.starAtlas = RawTexture.CreateRGBATexture(makeStarField(), 2048, 1024,
+            scene, false, false, Texture.BILINEAR_SAMPLINGMODE);
+        this.starAtlas.wrapU = Texture.WRAP_ADDRESSMODE;
+        this.starAtlas.wrapV = Texture.CLAMP_ADDRESSMODE;
+        mat.setTexture("starAtlas", this.starAtlas);
         this.mesh.material = mat;
         this.material = mat;
 
@@ -407,6 +415,7 @@ export class Sky {
     }
 
     dispose() {
+        this.starAtlas.dispose();
         this.lut.dispose();
         this.shLut.dispose();
         this.mesh.dispose();

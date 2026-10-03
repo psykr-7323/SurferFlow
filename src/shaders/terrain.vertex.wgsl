@@ -1,6 +1,6 @@
 #include<coastProfile>
-#include<rideDeform>
-#include<rideClipmap>
+#include<surferFlowDeform>
+#include<surferFlowClipmap>
 
 // position packs the clipmap addressing: (gridI, ringLevel, gridJ).
 attribute position: vec3f;

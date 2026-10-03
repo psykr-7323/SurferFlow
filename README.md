@@ -36,7 +36,7 @@ The sun and moon follow opposite continuous arcs, and stars twinkle at night.
 One shared sky texture drives the visible sky, ambient lighting, reflections,
 and atmospheric haze. The sun illuminates the scene by day; the moon and stars
 appear at night. Adaptive exposure eases between daylight and night settings,
-with a manual exposure multiplier available in the Post group.
+with exposure constants in `src/core/settings.js`.
 
 ## Coast and water
 
@@ -104,3 +104,14 @@ scripts/
 Build output is generated in `dist/`. No external textures, character assets or
 animation clips are required. The renderer retains procedural effect and
 material helpers from the project's earlier prototype.
+
+## Build scripts
+
+`scripts/wgslToGlsl.js` is used by the Vite build plugin to translate the project's
+WGSL shader sources into GLSL ES 3.00 for WebGL 2. It runs during development and
+production builds; the browser receives translated shaders, not the translator.
+
+The product, package metadata and shader namespaces use the SurferFlow name.
+Stars are generated once from seeded random spherical positions, so their placement
+is stable and has no grid-centred bands. The first 22 metres of beach stay clear
+of grass, with shrubs and trees beginning farther inland.

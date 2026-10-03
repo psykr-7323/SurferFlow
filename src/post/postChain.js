@@ -82,15 +82,15 @@ let registered = false;
 function registerPostShaders() {
     if (registered) return;
     registered = true;
-    ShaderStore.IncludesShadersStore["ridePostCommon"] = postCommonLib;
-    ShaderStore.ShadersStore["rideTaaPixelShader"] = taaFrag;
-    ShaderStore.ShadersStore["rideSsrPixelShader"] = ssrFrag;
-    ShaderStore.ShadersStore["rideShaftsPixelShader"] = shaftsFrag;
-    ShaderStore.ShadersStore["rideBloomDownPixelShader"] = bloomDownFrag;
-    ShaderStore.ShadersStore["rideBloomBlurPixelShader"] = bloomBlurFrag;
-    ShaderStore.ShadersStore["rideDofPixelShader"] = dofFrag;
-    ShaderStore.ShadersStore["rideTonemapPixelShader"] = tonemapFrag;
-    ShaderStore.ShadersStore["rideSharpenPixelShader"] = sharpenFrag;
+    ShaderStore.IncludesShadersStore["surferFlowPostCommon"] = postCommonLib;
+    ShaderStore.ShadersStore["surferFlowTaaPixelShader"] = taaFrag;
+    ShaderStore.ShadersStore["surferFlowSsrPixelShader"] = ssrFrag;
+    ShaderStore.ShadersStore["surferFlowShaftsPixelShader"] = shaftsFrag;
+    ShaderStore.ShadersStore["surferFlowBloomDownPixelShader"] = bloomDownFrag;
+    ShaderStore.ShadersStore["surferFlowBloomBlurPixelShader"] = bloomBlurFrag;
+    ShaderStore.ShadersStore["surferFlowDofPixelShader"] = dofFrag;
+    ShaderStore.ShadersStore["surferFlowTonemapPixelShader"] = tonemapFrag;
+    ShaderStore.ShadersStore["surferFlowSharpenPixelShader"] = sharpenFrag;
 }
 
 // ------------------------------------------------------- module-scope scratch
@@ -145,31 +145,31 @@ export class PostChain {
         // ------------------------------------------------------------ passes
         // Attached in this order; see the table at the top of the file for what
         // each one's declared ratio actually controls.
-        this.ssr = this._pass("rideSsr", 1.0, ["projInfo", "invRes", "enabled", "strength"],
+        this.ssr = this._pass("surferFlowSsr", 1.0, ["projInfo", "invRes", "enabled", "strength"],
             ["depthTex"], Constants.TEXTURETYPE_HALF_FLOAT);
-        this.taa = this._pass("rideTaa", 1.0,
+        this.taa = this._pass("surferFlowTaa", 1.0,
             ["prevViewProj", "invView", "projInfo", "invRes", "jitterNdc",
              "historyValid", "enabled", "feedback"],
             ["historyTex", "depthTex"], Constants.TEXTURETYPE_HALF_FLOAT);
-        this.shafts = this._pass("rideShafts", 1.0,
+        this.shafts = this._pass("surferFlowShafts", 1.0,
             ["sunUV", "sunOnScreen", "sunColor", "enabled", "strength", "aspect"],
             ["depthTex"], Constants.TEXTURETYPE_HALF_FLOAT);
-        this.bloomA = this._pass("rideBloomDown", 0.25,
+        this.bloomA = this._pass("surferFlowBloomDown", 0.25,
             ["srcTexel", "prefilter", "curve"], ["sourceTex"],
             Constants.TEXTURETYPE_HALF_FLOAT);
-        this.bloomB = this._pass("rideBloomDown", 0.25,
+        this.bloomB = this._pass("surferFlowBloomDown", 0.25,
             ["srcTexel", "prefilter", "curve"], ["sourceTex"],
             Constants.TEXTURETYPE_HALF_FLOAT);
-        this.bloomC = this._pass("rideBloomBlur", 0.0625, ["srcTexel"], [],
+        this.bloomC = this._pass("surferFlowBloomBlur", 0.0625, ["srcTexel"], [],
             Constants.TEXTURETYPE_HALF_FLOAT);
-        this.dof = this._pass("rideDof", 0.0625,
+        this.dof = this._pass("surferFlowDof", 0.0625,
             ["invRes", "enabled", "focusDist", "maxCoc"], ["sceneTex", "depthTex"],
             Constants.TEXTURETYPE_HALF_FLOAT);
-        this.composite = this._pass("rideTonemap", 1.0,
+        this.composite = this._pass("surferFlowTonemap", 1.0,
             ["exposure", "contrast", "mode", "grainAmount", "time", "vignette",
              "speedStreak", "bloomAmount", "shaftAmount"],
             ["bloomNear", "bloomFar", "shaftsTex"], Constants.TEXTURETYPE_HALF_FLOAT);
-        this.sharpen = this._pass("rideSharpen", 1.0, ["invRes", "amount"], [],
+        this.sharpen = this._pass("surferFlowSharpen", 1.0, ["invRes", "amount"], [],
             // The last stage before the swapchain, and the only one working on
             // display-encoded values — eight bits is exactly what it needs.
             Constants.TEXTURETYPE_UNSIGNED_BYTE);

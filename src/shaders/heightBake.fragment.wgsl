@@ -7,8 +7,8 @@
 // Re-implementing the noise in JS would drift the moment f32 and f64 rounding
 // diverged, and the character would float or sink by centimetres.
 
-#include<rideNoise>
-#include<rideTerrain>
+#include<surferFlowNoise>
+#include<surferFlowTerrain>
 
 varying vUV: vec2f;
 

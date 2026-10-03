@@ -9,10 +9,10 @@
 // follow a rounded droplet instead of reading as a flat disc.
 // -----------------------------------------------------------------------------
 
-#include<rideNoise>
-#include<rideShading>
-#include<rideSpellLights>
-#include<rideAtmosphere>
+#include<surferFlowNoise>
+#include<surferFlowShading>
+#include<surferFlowSpellLights>
+#include<surferFlowAtmosphere>
 
 varying vWorld: vec3f;
 varying vCorner: vec2f;
@@ -52,7 +52,7 @@ uniform spellLightPos: array<vec4f, 4>;
 uniform spellLightCol: array<vec4f, 4>;
 uniform spellLightCount: f32;
 
-#include<rideShadowLookup>
+#include<surferFlowShadowLookup>
 
 @fragment
 fn main(input: FragmentInputs) -> FragmentOutputs {

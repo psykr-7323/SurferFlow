@@ -4,7 +4,7 @@
 // A robe that casts the shape of its bind pose while drawing the shape of its
 // simulation is worse than no shadow at all.
 
-#include<rideCharSkin>
+#include<surferFlowCharSkin>
 
 attribute position: vec3f;   // (u, v, panel index)
 

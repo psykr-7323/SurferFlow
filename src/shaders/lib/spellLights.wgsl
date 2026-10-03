@@ -1,5 +1,5 @@
 // -----------------------------------------------------------------------------
-// rideSpellLights — the light a spell puts into the snow.
+// surferFlowSpellLights — the light a spell puts into the snow.
 //
 // A small pool of tight-radius dynamic lights with one behaviour an ordinary
 // point light does not give you: a spell lights the snow *from inside* the drift
@@ -7,7 +7,7 @@
 // same transmission lobe the sun drives, fed by a light that is two metres away
 // instead of 150 million kilometres.
 //
-// So every light here runs the identical `rideSubsurface` the sun runs. Stand a
+// So every light here runs the identical `surferFlowSubsurface` the sun runs. Stand a
 // glowing ribbon of water on a berm and the near face goes bright while the
 // *far* side of the crest glows through, because the light entered the snow and
 // came back out. Dropping that
@@ -20,7 +20,7 @@
 //   uniform spellLightCol: array<vec4f, 4>    (rgb colour, w intensity)
 //   uniform spellLightCount: f32
 //
-// and must include <rideShading> first, for `wrapDiffuse` and `rideSubsurface`.
+// and must include <surferFlowShading> first, for `wrapDiffuse` and `surferFlowSubsurface`.
 //
 // Four lights, not six. Only two spells are ever up at once in practice, and a
 // loop the whole snow field pays for on every pixel is not the place to buy
@@ -81,7 +81,7 @@ fn spellLighting(
         let radiance = lightCol[i].rgb * lightCol[i].w * att;
 
         acc += albedo * (1.0 / PI) * wrapDiffuse(dot(N, L), 0.66) * radiance;
-        acc += rideSubsurface(N, L, V, radiance, thickness, sssStrength, sssRadius) * albedo;
+        acc += surferFlowSubsurface(N, L, V, radiance, thickness, sssStrength, sssRadius) * albedo;
     }
 
     return acc;

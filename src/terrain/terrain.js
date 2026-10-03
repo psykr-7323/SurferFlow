@@ -58,7 +58,7 @@ export class Terrain {
         const mat = new ShaderMaterial(
             "coast",
             this.scene,
-            { vertex: "ride", fragment: "coast" },
+            { vertex: "surferFlow", fragment: "coast" },
             {
                 attributes: ["position"],
                 uniforms: [
@@ -133,7 +133,7 @@ export class Terrain {
                 shaderLanguage: ShaderLanguage.GLSL,
                 // Forces a distinct Effect per cascade, so each can carry its
                 // own light matrix without mid-frame uniform swapping.
-                defines: ["RIDE_CASCADE " + cascade],
+                defines: ["SURFERFLOW_CASCADE " + cascade],
             }
         );
         mat.backFaceCulling = false;

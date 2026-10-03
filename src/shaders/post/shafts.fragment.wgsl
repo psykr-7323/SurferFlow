@@ -17,7 +17,7 @@
 // by an order of magnitude, and the composite reads this back bilinearly.
 // -----------------------------------------------------------------------------
 
-#include<ridePostCommon>
+#include<surferFlowPostCommon>
 
 varying vUV: vec2f;
 

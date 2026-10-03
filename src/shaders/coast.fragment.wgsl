@@ -2,10 +2,10 @@
 // at the waterline. Geometry and shading remain camera-independent so the
 // existing clipmap can follow the player along the coast.
 
-#include<rideNoise>
-#include<rideShading>
-#include<rideShadowLookup>
-#include<rideAtmosphere>
+#include<surferFlowNoise>
+#include<surferFlowShading>
+#include<surferFlowShadowLookup>
+#include<surferFlowAtmosphere>
 #include<coastProfile>
 
 varying vWorld: vec3f;
@@ -134,7 +134,7 @@ fn main(input: FragmentInputs) -> FragmentOutputs {
     // Backdunes carry green groundcover in the same broad patches as the plants.
     let grove = 0.50 + 0.26 * sin(world.x * 0.037 + sin(world.z * 0.026))
         + 0.24 * sin(world.z * 0.049 - world.x * 0.018);
-    let inland = smoothstep(14.0, 48.0, shoreDistance);
+    let inland = smoothstep(30.0, 64.0, shoreDistance);
     let cover = inland * smoothstep(0.24, 0.80, grove) * 0.85;
     let grassSoil = mix(vec3f(0.19, 0.23, 0.065), vec3f(0.23, 0.31, 0.085), grove)
         * (1.0 + grain * 0.06 + broadTone * 0.10);

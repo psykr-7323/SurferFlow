@@ -7,7 +7,7 @@
  * frames, so a spell that stops updating stops lighting with no teardown.
  *
  * Every material that shades something the player can see reads the same two
- * arrays through `rideSpellLights`. That is the point: a spell has to light the
+ * arrays through `surferFlowSpellLights`. That is the point: a spell has to light the
  * snow, the robe, the wake and the airborne spray out of one description, or it
  * reads as a glow pasted over a scene rather than as a light in it.
  *

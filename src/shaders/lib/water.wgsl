@@ -1,5 +1,5 @@
 // -----------------------------------------------------------------------------
-// rideWater — the shape of a bent water body.
+// surferFlowWater — the shape of a bent water body.
 //
 // Every spell that moves a coherent mass of water is one or more *strands*: a
 // swept surface along a spine, exactly the construction the snow-surf wake uses,

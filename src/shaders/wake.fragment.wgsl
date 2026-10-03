@@ -18,11 +18,11 @@
 // The wake has to sit in the frame as part of the same world.
 // -----------------------------------------------------------------------------
 
-#include<rideNoise>
-#include<rideShading>
-#include<rideSpellLights>
-#include<rideAtmosphere>
-#include<rideWake>
+#include<surferFlowNoise>
+#include<surferFlowShading>
+#include<surferFlowSpellLights>
+#include<surferFlowAtmosphere>
+#include<surferFlowWake>
 
 varying vWorld: vec3f;
 varying vNormal: vec3f;
@@ -70,7 +70,7 @@ uniform spellLightPos: array<vec4f, 4>;
 uniform spellLightCol: array<vec4f, 4>;
 uniform spellLightCount: f32;
 
-#include<rideShadowLookup>
+#include<surferFlowShadowLookup>
 
 @fragment
 fn main(input: FragmentInputs) -> FragmentOutputs {
@@ -202,7 +202,7 @@ fn main(input: FragmentInputs) -> FragmentOutputs {
     // tint reaches the blue end at a lower thickness. Together those keep the
     // backlit glow reading as light coming *through snow* rather than as the sun
     // reflecting off something tan.
-    let sss = rideSubsurface(N, L, V, sun, thickness, uniforms.sssStrength * 0.45, 1.5);
+    let sss = surferFlowSubsurface(N, L, V, sun, thickness, uniforms.sssStrength * 0.45, 1.5);
     let sssTerm = sss * albedo * mix(0.18, 1.0, shadow);
     color += sssTerm;
 
@@ -263,7 +263,7 @@ fn main(input: FragmentInputs) -> FragmentOutputs {
     color *= occ * caveTint;
 
     if (uniforms.glintIntensity > 0.001) {
-        let g = rideGlints(
+        let g = surferFlowGlints(
             world.xz, N, V, L, footprint,
             uniforms.glintIntensity, uniforms.glintGrazing
         );

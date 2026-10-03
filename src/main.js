@@ -208,6 +208,7 @@ async function boot() {
         const now = performance.now();
         let dtMs = now - prev;
         prev = now;
+        const clockDt = S.freezeTime ? 0 : Math.min(dtMs / 1000, 1);
         if (dtMs > 100) dtMs = 100;
         const dt = S.freezeTime ? 0 : dtMs / 1000;
         oceanFrameDt = dt;
@@ -240,7 +241,7 @@ async function boot() {
         // before anything reads `scene.getTransformMatrix()` — which the depth
         // prepass and the beauty pass both do.
         post.update(dt, character.streak01, rig.distance);
-        sky.update(dt);
+        sky.update(clockDt);
         sky.render(rig, time);
         shadows.update(rig.camera, sky.sunDir);
         // After the shadow refit, so the water and the ice carry this frame's
@@ -293,7 +294,7 @@ async function boot() {
     });
 
     await loading.done();
-    document.getElementById("ride-hud")?.classList.add("show");
+    document.getElementById("surferflow-hud")?.classList.add("show");
 
     globalThis.SurferFlow = {
         engine, scene, rig, character, figure, contact, spray, wake, spells,

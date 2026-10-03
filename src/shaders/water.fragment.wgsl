@@ -40,10 +40,10 @@
 // texture the shader is already binding.
 // -----------------------------------------------------------------------------
 
-#include<rideNoise>
-#include<rideShading>
-#include<rideSpellLights>
-#include<rideAtmosphere>
+#include<surferFlowNoise>
+#include<surferFlowShading>
+#include<surferFlowSpellLights>
+#include<surferFlowAtmosphere>
 
 varying vWorld: vec3f;
 varying vNormal: vec3f;
@@ -93,7 +93,7 @@ uniform spellLightPos: array<vec4f, 4>;
 uniform spellLightCol: array<vec4f, 4>;
 uniform spellLightCount: f32;
 
-#include<rideShadowLookup>
+#include<surferFlowShadowLookup>
 
 /// Absorption per metre of path, exaggerated well past real water.
 ///
@@ -245,7 +245,7 @@ fn main(input: FragmentInputs) -> FragmentOutputs {
         var slush = slushAlbedo * INV_PI * sun * d * shadow;
         slush += slushAlbedo * INV_PI * shIrradiance(N, uniforms.shR)
                * uniforms.ambientIntensity;
-        slush += rideSubsurface(N, L, V, sun, 0.45, uniforms.sssStrength * 0.8, 1.2)
+        slush += surferFlowSubsurface(N, L, V, sun, 0.45, uniforms.sssStrength * 0.8, 1.2)
                * slushAlbedo * mix(0.35, 1.0, shadow);
         color = mix(color, slush, input.vMilk * 0.85);
     }
@@ -262,7 +262,7 @@ fn main(input: FragmentInputs) -> FragmentOutputs {
         let foamAlbedo = vec3f(0.93, 0.955, 0.99);
         var fc = foamAlbedo * INV_PI * sun * wrapDiffuse(NdotL, 0.72) * shadow;
         fc += foamAlbedo * INV_PI * shIrradiance(N, uniforms.shR) * uniforms.ambientIntensity;
-        fc += rideSubsurface(N, L, V, sun, 0.25, uniforms.sssStrength, 1.4)
+        fc += surferFlowSubsurface(N, L, V, sun, 0.25, uniforms.sssStrength, 1.4)
             * foamAlbedo * mix(0.4, 1.0, shadow);
         color = mix(color, fc, foam);
     }
@@ -304,7 +304,7 @@ fn main(input: FragmentInputs) -> FragmentOutputs {
     // glint field, at a much finer cell and gated the same way, so the sparkle
     // on the water and the sparkle on the field are the same effect.
     if (uniforms.glintIntensity > 0.001) {
-        let g = rideGlints(
+        let g = surferFlowGlints(
             fp, N, V, L, footprint,
             uniforms.glintIntensity * (0.6 + 0.8 * max(foam, input.vMilk)),
             uniforms.glintGrazing

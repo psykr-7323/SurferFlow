@@ -17,9 +17,9 @@
 // white fur does, which is glow around its edges.
 // -----------------------------------------------------------------------------
 
-#include<rideNoise>
-#include<rideShading>
-#include<rideAtmosphere>
+#include<surferFlowNoise>
+#include<surferFlowShading>
+#include<surferFlowAtmosphere>
 
 varying vWorld: vec3f;
 varying vNormal: vec3f;
@@ -58,7 +58,7 @@ uniform ambientIntensity: f32;
 uniform furDensity: f32;
 uniform furColor: vec3f;
 
-#include<rideShadowLookup>
+#include<surferFlowShadowLookup>
 
 @fragment
 fn main(input: FragmentInputs) -> FragmentOutputs {

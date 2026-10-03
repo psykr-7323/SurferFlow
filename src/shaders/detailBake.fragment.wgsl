@@ -11,7 +11,7 @@
 //   B    cavity / crevice occlusion
 //   A    height, for the contact-detail parallax at trail edges
 
-#include<rideNoise>
+#include<surferFlowNoise>
 
 varying vUV: vec2f;
 

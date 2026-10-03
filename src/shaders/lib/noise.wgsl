@@ -1,7 +1,7 @@
 // -----------------------------------------------------------------------------
-// rideNoise — shared procedural noise library.
+// surferFlowNoise — shared procedural noise library.
 //
-// Registered into Babylon's WGSL include store as <rideNoise>, so both the
+// Registered into Babylon's WGSL include store as <surferFlowNoise>, so both the
 // offline height bake and the runtime snow material evaluate byte-identical
 // functions. Everything that shapes the surface lives here.
 //

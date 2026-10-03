@@ -1,12 +1,14 @@
-#include<rideNoise>
-#include<rideAtmosphere>
-#include<rideShading>
-#include<rideRidge>
+#include<surferFlowNoise>
+#include<surferFlowAtmosphere>
+#include<surferFlowShading>
+#include<surferFlowRidge>
 
 varying vDir: vec3f;
 
 var skyLUT: texture_2d<f32>;
 var skyLUTSampler: sampler;
+var starAtlas: texture_2d<f32>;
+var starAtlasSampler: sampler;
 
 uniform sunDir: vec3f;
 uniform solarDir: vec3f;
@@ -50,16 +52,16 @@ fn shadeRidge(hit: RidgeHit, dir: vec3f) -> vec3f {
     // and turned the horizon into a dark smear. Rock is here for the *break* it
     // gives a white massif, not as a ground cover.
     let steep = 1.0 - N.y;
-    let rideMask = clamp(1.0 - smoothstep(0.46, 0.80, steep), 0.0, 1.0);
+    let surferFlowMask = clamp(1.0 - smoothstep(0.46, 0.80, steep), 0.0, 1.0);
 
     let rock = vec3f(0.052, 0.055, 0.066);
     let snow = vec3f(0.50, 0.36, 0.20);
-    let albedo = mix(rock, snow, rideMask);
+    let albedo = mix(rock, snow, surferFlowMask);
 
     let shadow = ridgeShadow(hit.pos, hit.height, L, uniforms.ridgeAmp);
 
     const INV_PI: f32 = 0.31830988618;
-    let diff = wrapDiffuse(dot(N, L), mix(0.15, 0.62, rideMask));
+    let diff = wrapDiffuse(dot(N, L), mix(0.15, 0.62, surferFlowMask));
     var col = albedo * INV_PI * uniforms.sunRadiance * diff * shadow;
 
     // --- subsurface ---------------------------------------------------------
@@ -73,10 +75,10 @@ fn shadeRidge(hit: RidgeHit, dir: vec3f) -> vec3f {
     // and it was most visible in exactly the framing where a range should look
     // its best: looking into a low sun.
     //
-    // Same `rideSubsurface` the ground runs, so the two cannot disagree about
+    // Same `surferFlowSubsurface` the ground runs, so the two cannot disagree about
     // what back-lit snow does.
     let V = -dir;
-    col += rideSubsurface(N, L, V, uniforms.sunRadiance, 0.45, rideMask, 1.0)
+    col += surferFlowSubsurface(N, L, V, uniforms.sunRadiance, 0.45, surferFlowMask, 1.0)
          * albedo * mix(0.5, 1.0, shadow);
 
     // Sky fill. At this distance it is most of what is left after extinction,
@@ -88,7 +90,7 @@ fn shadeRidge(hit: RidgeHit, dir: vec3f) -> vec3f {
     // leaving it out is what makes shaded faces read as too dark by a stop.
     col += albedo * INV_PI * shIrradiance(vec3f(0.0, 1.0, 0.0), uniforms.shR)
          * uniforms.ambientIntensity * 0.30 * clamp(-N.y * 0.5 + 0.5, 0.0, 1.0)
-         * rideMask;
+         * surferFlowMask;
 
     // ---- aerial perspective ------------------------------------------------
     //
@@ -185,16 +187,12 @@ fn main(input: FragmentInputs) -> FragmentOutputs {
     col += vec3f(1.2, 1.5, 2.0) * moonEdge * moonTexture * uniforms.nightAmount * moonrise;
     col += vec3f(0.08, 0.11, 0.20) * pow(max(0.0, moonMu), 600.0)
         * uniforms.nightAmount * moonrise;
-    let starGrid = uv * vec2f(1200.0, 600.0);
-    let starCell = floor(starGrid);
-    let starRandom = fract(sin(dot(starCell, vec2f(127.1, 311.7))) * 43758.5453);
-    let starDistance = length(fract(starGrid) - vec2f(0.5));
-    let star = (1.0 - smoothstep(0.05, 0.30, starDistance))
-        * step(0.994, starRandom) * smoothstep(0.02, 0.20, dir.y);
-    // Each star scintillates at its own phase and speed, without blinking out.
-    let twinkle = 0.72 + 0.20 * sin(uniforms.time * (1.1 + starRandom * 2.4)
-        + starRandom * 91.0) + 0.08 * sin(uniforms.time * 4.7 + starRandom * 163.0);
-    col += vec3f(1.2, 1.5, 2.1) * star * twinkle * uniforms.nightAmount;
+    // Seeded random spherical positions avoid float-hash bands and grid centres.
+    let starData = textureSampleLevel(starAtlas, starAtlasSampler, uv, 0.0);
+    let twinkle = 0.76 + 0.18 * sin(uniforms.time * (1.1 + starData.b * 2.4)
+        + starData.g * 91.0) + 0.06 * sin(uniforms.time * 4.7 + starData.g * 163.0);
+    col += vec3f(1.2, 1.5, 2.1) * starData.r * twinkle * uniforms.nightAmount
+        * smoothstep(0.02, 0.20, dir.y);
 
     // ------------------------------------------------------------- cirrus
     // Thin, high, wind-aligned. Restrained on purpose: the reference skies are

@@ -19,7 +19,7 @@
 // depth of field look like a smeared decal around every silhouette.
 // -----------------------------------------------------------------------------
 
-#include<ridePostCommon>
+#include<surferFlowPostCommon>
 
 varying vUV: vec2f;
 

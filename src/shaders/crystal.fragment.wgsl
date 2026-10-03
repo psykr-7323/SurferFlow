@@ -35,10 +35,10 @@
 // different amounts of sky, and that facet-to-facet jump *is* the look of ice.
 // -----------------------------------------------------------------------------
 
-#include<rideNoise>
-#include<rideShading>
-#include<rideSpellLights>
-#include<rideAtmosphere>
+#include<surferFlowNoise>
+#include<surferFlowShading>
+#include<surferFlowSpellLights>
+#include<surferFlowAtmosphere>
 
 varying vWorld: vec3f;
 varying vBase: vec3f;
@@ -81,7 +81,7 @@ uniform spellLightPos: array<vec4f, 4>;
 uniform spellLightCol: array<vec4f, 4>;
 uniform spellLightCount: f32;
 
-#include<rideShadowLookup>
+#include<surferFlowShadowLookup>
 
 /// Absorption per metre. Real ice is roughly (1.5, 0.35, 0.10) in the visible;
 /// this is a little stronger so a hand-sized crystal shows the colour a
@@ -175,7 +175,7 @@ fn main(input: FragmentInputs) -> FragmentOutputs {
         let fa = vec3f(0.88, 0.915, 0.965);
         var fc = fa * INV_PI * sun * wrapDiffuse(NdotL, 0.62) * shadow;
         fc += fa * INV_PI * shIrradiance(N, uniforms.shR) * uniforms.ambientIntensity;
-        fc += rideSubsurface(N, L, V, sun, 0.4, uniforms.sssStrength, 1.3)
+        fc += surferFlowSubsurface(N, L, V, sun, 0.4, uniforms.sssStrength, 1.3)
             * fa * mix(0.4, 1.0, shadow);
         color = mix(color, fc, frost * 0.9);
     }
@@ -195,7 +195,7 @@ fn main(input: FragmentInputs) -> FragmentOutputs {
     }
 
     if (uniforms.glintIntensity > 0.001) {
-        let g = rideGlints(
+        let g = surferFlowGlints(
             world.xz, N, V, L, max(length(dx.xz) + length(dy.xz), 1e-4),
             uniforms.glintIntensity * (0.4 + 1.2 * frost), uniforms.glintGrazing
         );

@@ -1,5 +1,5 @@
 // -----------------------------------------------------------------------------
-// rideTerrain — the landform.
+// surferFlowTerrain — the landform.
 //
 // Split into two halves that live in different places at runtime:
 //

@@ -1,5 +1,5 @@
 // -----------------------------------------------------------------------------
-// rideShading — the BRDF, the subsurface term, the glints and the shadow filter.
+// surferFlowShading — the BRDF, the subsurface term, the glints and the shadow filter.
 //
 // Snow is not a dielectric with a white albedo. It is a densely packed scatterer
 // with a mean free path of a few millimetres, which means:
@@ -72,7 +72,7 @@ fn backScatter(N: vec3f, L: vec3f, V: vec3f, distortion: f32, power: f32, thickn
 
 /// Combined snow subsurface response for one light.
 /// Returns the RGB radiance contribution to add to the diffuse lobe.
-fn rideSubsurface(
+fn surferFlowSubsurface(
     N: vec3f,
     L: vec3f,
     V: vec3f,
@@ -153,7 +153,7 @@ fn glintOctave(
 /// Gated hard on grazing view angle: snow sparkles when you look *across* it
 /// into the sun, and stays matte when you look down at it. Losing that gate is
 /// what turns this effect into glitter.
-fn rideGlints(
+fn surferFlowGlints(
     worldXZ: vec2f,
     N: vec3f,
     V: vec3f,

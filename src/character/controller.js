@@ -37,7 +37,10 @@ const SURF_TURN = 2.35; // rad/s at full steer
 const SURF_GRIP = 7.5;
 
 /** Gait: metres of travel per full stride cycle, scaled by speed. */
-const STRIDE_BASE = 1.55;
+export function gaitStride(speed) {
+    const run = Math.max(0, Math.min(1, (speed - WALK_SPEED) / (RUN_SPEED - WALK_SPEED)));
+    return 1.50 + 0.90 * run;
+}
 
 export class CharacterController {
     /**
@@ -95,7 +98,7 @@ export class CharacterController {
          * copies of "is this character walking" is three chances for the feet to
          * disagree with the footprints.
          */
-        this.stepping = true;
+        this.stepping = false;
         /** Set true for exactly one frame when a foot plants. */
         this.footfall = false;
         /** 0 = left foot, 1 = right foot — which foot just planted. */
@@ -116,7 +119,8 @@ export class CharacterController {
      * @param {import("../core/camera.js").CameraRig} rig
      */
     update(dt, rig) {
-        const h = Math.min(dt, 1 / 30);
+        const h = Math.max(0, Math.min(dt, 0.1));
+        if (h === 0) { this.footfall = false; return; }
 
         this.prevVelocity.copyFrom(this.velocity);
         this.inWater = this.ocean
@@ -178,9 +182,12 @@ export class CharacterController {
             _wish.x = (_wish.x / wishLen) * maxSpeed;
             _wish.z = (_wish.z / wishLen) * maxSpeed;
 
-            const a = WALK_ACCEL * h;
-            this.velocity.x += Scalar.Clamp(_wish.x - this.velocity.x, -a, a);
-            this.velocity.z += Scalar.Clamp(_wish.z - this.velocity.z, -a, a);
+            const dx = _wish.x - this.velocity.x;
+            const dz = _wish.z - this.velocity.z;
+            const delta = Math.hypot(dx, dz);
+            const gain = delta > 0 ? Math.min(1, WALK_ACCEL * h / delta) : 0;
+            this.velocity.x += dx * gain;
+            this.velocity.z += dz * gain;
 
             // Face the direction of travel, eased.
             const want = Math.atan2(_wish.x, _wish.z);
@@ -267,14 +274,14 @@ export class CharacterController {
         // travelling at nineteen metres a second. The gait is distance-driven, so
         // it answered that with a twelve-hertz cadence and the legs blurred. A
         // sprint is the fastest thing anyone walks at; above it, glide.
-        this.stepping = this.surf <= 0.5 && this.speed <= RUN_SPEED * 1.2;
+        this.stepping = this.surf <= 0.5 && this.speed <= RUN_SPEED * 1.2 && this.speed > 0.12;
         if (!this.stepping) {
             this.gaitPhase = 0;
             return;
         }
 
         const dist = this.speed * h;
-        const stride = STRIDE_BASE * (0.72 + 0.28 * Math.min(1, this.speed / RUN_SPEED));
+        const stride = gaitStride(this.speed);
         const prev = this.gaitPhase;
         this.gaitPhase = (this.gaitPhase + dist / stride) % 1;
 

@@ -1,8 +1,8 @@
 // -----------------------------------------------------------------------------
-// rideWake — the shape of the snow-surf wake.
+// surferFlowWake — the shape of the snow-surf wake.
 //
 // Shared by the beauty pass, the depth pass and the fragment erosion, for the
-// same reason `rideDeform` is shared: three copies of a surface definition will
+// same reason `surferFlowDeform` is shared: three copies of a surface definition will
 // eventually disagree, and the symptom — a shadow that is not quite the shape of
 // the thing casting it — is both subtle and impossible to attribute.
 //

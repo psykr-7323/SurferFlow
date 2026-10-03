@@ -1,8 +1,8 @@
 // Bakes the atmospheric scattering integral into an equirectangular LUT.
 // Re-run only when the sun moves, never per frame.
 
-#include<rideNoise>
-#include<rideAtmosphere>
+#include<surferFlowNoise>
+#include<surferFlowAtmosphere>
 
 varying vUV: vec2f;
 

@@ -27,10 +27,10 @@
 // no matter how good the fabric is.
 // -----------------------------------------------------------------------------
 
-#include<rideNoise>
-#include<rideShading>
-#include<rideSpellLights>
-#include<rideAtmosphere>
+#include<surferFlowNoise>
+#include<surferFlowShading>
+#include<surferFlowSpellLights>
+#include<surferFlowAtmosphere>
 
 varying vWorld: vec3f;
 varying vNormal: vec3f;
@@ -79,7 +79,7 @@ uniform spellLightPos: array<vec4f, 4>;
 uniform spellLightCol: array<vec4f, 4>;
 uniform spellLightCount: f32;
 
-#include<rideShadowLookup>
+#include<surferFlowShadowLookup>
 
 /// Charlie sheen distribution. `roughness` here is the fibre roughness, and it
 /// wants to be high — 0.3 or below turns the rim into a hard line.

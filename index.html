@@ -171,7 +171,7 @@
 
     #hint.show { opacity: 1; }
 
-    #ride-hud {
+    #surferflow-hud {
         position: fixed;
         top: 24px;
         left: 28px;
@@ -182,16 +182,16 @@
         opacity: 0;
         transition: opacity 700ms ease;
     }
-    #ride-hud.show { opacity: 1; }
-    #ride-hud strong { display: block; font-size: 21px; letter-spacing: 0.28em; }
+    #surferflow-hud.show { opacity: 1; }
+    #surferflow-hud strong { display: block; font-size: 21px; letter-spacing: 0.28em; }
     #day-clock { display: block; margin-top: 7px; font-size: 11px; letter-spacing: 0.08em; }
 </style>
 </head>
 <body>
     <canvas id="view" tabindex="0"></canvas>
-    <div id="ride-hud"><strong>SurferFlow</strong><span id="day-clock"></span></div>
+    <div id="surferflow-hud"><strong>SurferFlow</strong><span id="day-clock"></span></div>
 
-    <div id="hint">click to look &nbsp;·&nbsp; wasd to move &nbsp;·&nbsp; space to run / surf</div>
+    <div id="hint">click / drag to look &nbsp;·&nbsp; wasd to move &nbsp;·&nbsp; space to run / surf</div>
 
     <div id="boot">
         <div class="boot-inner">

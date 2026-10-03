@@ -164,7 +164,7 @@ export class CoastalVegetation {
                     "vegetationFocus", "vegetationRadius", "shorelineZ", "coastlineVariation",
                 ],
                 shaderLanguage: ShaderLanguage.GLSL,
-                defines: ["RIDE_CASCADE " + cascade],
+                defines: ["SURFERFLOW_CASCADE " + cascade],
             }
         );
         material.backFaceCulling = false;
@@ -369,12 +369,13 @@ function scatterCover(out, focusX, focusZ, radius, density, terrain) {
     const buildRadius = radius + REBUILD_MARGIN;
     visitCells(focusX, focusZ, buildRadius, spacing, (gx, gz, x0, z0, d2) => {
         const shore = terrain.shorelineAt(x0) - z0;
-        if (shore < 7 || d2 > buildRadius * buildRadius) return;
-        const band = smooth01((shore - 6) / 12) * (1 - smooth01((shore - 98) / 38));
+        if (shore < 22 || d2 > buildRadius * buildRadius) return;
+        const band = smooth01((shore - 22) / 14) * (1 - smooth01((shore - 98) / 38));
         const rx = hash01(gx, gz, 7);
         const rz = hash01(gx, gz, 31);
         const x = x0 + (rx - 0.5) * spacing * 0.76;
         const z = z0 + (rz - 0.5) * spacing * 0.76;
+        if (terrain.shorelineAt(x) - z < 22) return;
         const plantDistance = (x - focusX) ** 2 + (z - focusZ) ** 2;
         const patch = coastalPatch(x, z);
         const chance = Math.min(0.94, (0.36 + patch * 0.48) * density * band);
@@ -386,7 +387,7 @@ function scatterCover(out, focusX, focusZ, radius, density, terrain) {
         });
     });
     scatterClumps(out, focusX, focusZ, buildRadius, density, terrain, {
-        tag: 1201, cellX: 36, cellZ: 30, shoreMin: 12, shoreMax: 72,
+        tag: 1201, cellX: 36, cellZ: 30, shoreMin: 28, shoreMax: 98,
         chance: 0.4, offsets: [[-2.2, -1.0], [1.8, -1.4], [-1.4, 2.0], [2.3, 2.1]],
         scaleMin: 1.25, scaleMax: 1.95,
     });
@@ -397,8 +398,8 @@ function scatterScrub(out, focusX, focusZ, radius, density, terrain) {
     const buildRadius = radius + REBUILD_MARGIN;
     visitCells(focusX, focusZ, buildRadius, spacing, (gx, gz, x0, z0, d2) => {
         const shore = terrain.shorelineAt(x0) - z0;
-        if (shore < 16 || shore > 335 || d2 > buildRadius * buildRadius) return;
-        const band = smooth01((shore - 16) / 20) * (1 - smooth01((shore - 285) / 50));
+        if (shore < 34 || shore > 335 || d2 > buildRadius * buildRadius) return;
+        const band = smooth01((shore - 34) / 20) * (1 - smooth01((shore - 285) / 50));
         const x = x0 + (hash01(gx, gz, 13) - 0.5) * spacing * 0.68;
         const z = z0 + (hash01(gx, gz, 47) - 0.5) * spacing * 0.68;
         if ((x - focusX) ** 2 + (z - focusZ) ** 2 > buildRadius * buildRadius) return;
@@ -410,7 +411,7 @@ function scatterScrub(out, focusX, focusZ, radius, density, terrain) {
         });
     });
     scatterClumps(out, focusX, focusZ, buildRadius, density, terrain, {
-        tag: 2204, cellX: 58, cellZ: 42, shoreMin: 24, shoreMax: 132,
+        tag: 2204, cellX: 58, cellZ: 42, shoreMin: 42, shoreMax: 160,
         chance: 0.28, offsets: [[-4.0, -0.6], [3.2, -2.4], [1.2, 3.8]],
         scaleMin: 1.05, scaleMax: 1.7,
     });
@@ -421,11 +422,11 @@ function scatterTrees(out, focusX, focusZ, radius, density, terrain) {
     const buildRadius = radius + REBUILD_MARGIN;
     visitCells(focusX, focusZ, buildRadius, spacing, (gx, gz, x0, z0, d2) => {
         const shore = terrain.shorelineAt(x0) - z0;
-        if (shore < 18 || shore > 310 || d2 > buildRadius * buildRadius) return;
+        if (shore < 48 || shore > 310 || d2 > buildRadius * buildRadius) return;
         // Put the strongest tree line behind the dunes, where it frames the
         // rider at normal camera distance. A light falloff beyond the inland
         // treeline avoids filling the whole horizon with tiny repeated pines.
-        const band = smooth01((shore - 18) / 26) * (1 - smooth01((shore - 220) / 90));
+        const band = smooth01((shore - 48) / 26) * (1 - smooth01((shore - 220) / 90));
         const x = x0 + (hash01(gx, gz, 17) - 0.5) * spacing * 0.64;
         const z = z0 + (hash01(gx, gz, 53) - 0.5) * spacing * 0.64;
         if ((x - focusX) ** 2 + (z - focusZ) ** 2 > buildRadius * buildRadius) return;
@@ -437,7 +438,7 @@ function scatterTrees(out, focusX, focusZ, radius, density, terrain) {
         });
     });
     scatterClumps(out, focusX, focusZ, buildRadius, density, terrain, {
-        tag: 3220, cellX: 60, cellZ: 48, shoreMin: 32, shoreMax: 144,
+        tag: 3220, cellX: 60, cellZ: 48, shoreMin: 56, shoreMax: 190,
         chance: 0.4, offsets: [[-8.6, -1.6], [0.8, -6.0], [8.2, 1.8], [-1.8, 7.2]],
         scaleMin: 1.35, scaleMax: 2.15,
     });
@@ -477,7 +478,7 @@ function scatterClumps(out, focusX, focusZ, buildRadius, density, terrain, spec)
                 if ((x - focusX) ** 2 + (z - focusZ) ** 2 > buildRadius * buildRadius) continue;
 
                 const plantShore = terrain.shorelineAt(x) - z;
-                if (plantShore < spec.shoreMin - 3 || plantShore > spec.shoreMax + 8) continue;
+                if (plantShore < spec.shoreMin || plantShore > spec.shoreMax + 8) continue;
                 const scaleT = hash01(gx, gz, spec.tag + 29 + i);
                 out.push({
                     x, z, y: terrain.heightAt(x, z),

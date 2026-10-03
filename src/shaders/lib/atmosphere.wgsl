@@ -1,5 +1,5 @@
 // -----------------------------------------------------------------------------
-// rideAtmosphere — sky model and aerial perspective.
+// surferFlowAtmosphere — sky model and aerial perspective.
 //
 // The sky is a Nishita single-scattering integration rather than an HDRI. The
 // whole look hangs on a sun sitting 5-15 degrees above the horizon, and with an

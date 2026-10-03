@@ -13,7 +13,7 @@
 // the glints themselves. Weighting each group by 1/(1+luma) before averaging
 // keeps the energy and drops the flicker.
 
-#include<ridePostCommon>
+#include<surferFlowPostCommon>
 
 varying vUV: vec2f;
 

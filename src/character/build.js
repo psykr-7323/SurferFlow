@@ -282,12 +282,7 @@ export function buildBody(scene) {
             ring(side * 0.093, 1.676, 0, 0.019, 0.020, 0.93, [B_HEAD, 1, 0, 0])],
             M_SKIN, [0, 0, 1], true, true);
     }
-    // Brown swept hair; its raised crown is visible in the chase camera.
-    loft(B, [ring(0, 1.705, -0.018, 0.091, 0.096, 0.90, [B_HEAD, 1, 0, 0]),
-        ring(-0.006, 1.746, -0.026, 0.100, 0.102, 0.95, [B_HEAD, 1, 0, 0]),
-        ring(-0.025, 1.790, -0.037, 0.078, 0.081, 0.96, [B_HEAD, 1, 0, 0]),
-        ring(-0.035, 1.818, -0.043, 0.028, 0.038, 0.94, [B_HEAD, 1, 0, 0])],
-        M_HAIR, [0, 0, 1], false, true);
+    buildHair(B);
     // Sunglasses have separate frames, recessed blue lenses and temple arms.
     for (const side of [-1, 1]) {
         block(B, side * 0.048, 1.676, 0.103, 0.046, 0.029, 0.012, M_FRAME, B_HEAD);
@@ -333,7 +328,41 @@ export function buildBody(scene) {
             ring(sign * 0.100, 0.030, 0.17, 0.039, 0.023, 0.94, [ft, 1, 0, 0])],
             M_SKIN, [0, 1, 0], true, true);
     }
-    return finishSkinned(scene, "rideBody", B);
+    return finishSkinned(scene, "surferFlowBody", B);
+}
+
+/** Sculpted scalp, tapered sides and overlapping swept locks. */
+function buildHair(B) {
+    // A hemispherical cap follows the skull rather than a tall tapered tube.
+    const rows = [];
+    for (let r = 0; r <= 7; r++) {
+        const theta = 0.05 + r / 7 * 1.68;
+        const row = [];
+        for (let i = 0; i <= 28; i++) {
+            const a = i / 28 * Math.PI * 2;
+            const front = Math.max(0, Math.cos(a));
+            const taper = 1 - front * (r / 7) ** 4 * 0.10;
+            const x = Math.sin(a) * Math.sin(theta) * 0.094 * taper;
+            const y = 1.665 + Math.cos(theta) * 0.121 + front * 0.008;
+            const z = -0.010 + Math.cos(a) * Math.sin(theta) * 0.105;
+            row.push(B.vert(x, y, z, i / 28, r / 7, M_HAIR,
+                0.86 + 0.10 * (1 - r / 7), B_HEAD, 1, 0, 0));
+        }
+        rows.push(row);
+    }
+    for (let r = 0; r < rows.length - 1; r++) {
+        for (let i = 0; i < 28; i++) B.quad(rows[r][i], rows[r][i + 1], rows[r + 1][i + 1], rows[r + 1][i]);
+    }
+    // Thick curved locks sweep backwards, with small radius changes for texture.
+    for (let i = 0; i < 7; i++) {
+        const x = (i - 3) * 0.024;
+        const crown = 1.778 - Math.abs(i - 3) * 0.005;
+        loft(B, [ring(x, crown - 0.045, 0.069, 0.019, 0.020, 0.90, [B_HEAD, 1, 0, 0]),
+            ring(x - 0.015, crown + 0.015, 0.021, 0.022, 0.026, 0.97, [B_HEAD, 1, 0, 0]),
+            ring(x - 0.024, crown + 0.006, -0.045, 0.020, 0.023, 0.95, [B_HEAD, 1, 0, 0]),
+            ring(x - 0.018, crown - 0.028, -0.094, 0.007, 0.011, 0.92, [B_HEAD, 1, 0, 0])],
+            M_HAIR, [1, 0, 0], true, true);
+    }
 }
 
 /** Small hard-edged accessory, sharing the existing skinning passes. */
