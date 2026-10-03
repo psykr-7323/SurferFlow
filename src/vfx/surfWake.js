@@ -160,7 +160,7 @@ export class SurfWake {
         /**
          * Per-term diagnostic, settable from the console as
          * `SurferFlow.wake.debug = n`. See the switch at the bottom of
-         * `wake.fragment.wgsl` for the modes.
+         * `wake.fragment.glsl` for the modes.
          */
         this.debug = 0;
     }
@@ -729,7 +729,7 @@ export class SurfWake {
 
 /**
  * The static lattice. `position` is (column, row, side) and carries no geometry
- * at all — see `wake.vertex.wgsl`.
+ * at all — see `wake.vertex.glsl`.
  */
 function buildLattice(scene) {
     const perSide = COLS * ROWS;

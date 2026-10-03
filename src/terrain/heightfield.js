@@ -3,7 +3,7 @@
  *
  * `coastHeight(x, z)` is the canonical gameplay query and is unbounded along
  * the shoreline: +Z is mean-sea-level water (height 0), -Z is a gently rising
- * beach and land. `src/shaders/lib/coast.wgsl` is its render-side equivalent.
+ * beach and land. `src/shaders/lib/coast.glsl` is its render-side equivalent.
  *
  * The render passes and gameplay all evaluate the same low-frequency profile.
  * Fine sand detail belongs in material shading, while animated waves stay in
@@ -20,7 +20,7 @@ const INLAND_RAMP = 24;
 
 /**
  * Alongshore shoreline displacement in metres. Keep in sync with
- * `coastShorelineOffset` in `src/shaders/lib/coast.wgsl`.
+ * `coastShorelineOffset` in `src/shaders/lib/coast.glsl`.
  */
 export function coastShorelineOffset(x, variationScale = 1) {
     const scale = clamp(variationScale, 0, 2);
@@ -40,7 +40,7 @@ export function coastShorelineAt(x, baseZ = 0, variationScale = 1) {
  * Deterministic coastal ground height in metres relative to mean sea level.
  * Positive Z is ocean; land rises inland from a broad, gently varying coast.
  * The same constants and arithmetic are mirrored by `coastHeight` in
- * `src/shaders/lib/coast.wgsl`.
+ * `src/shaders/lib/coast.glsl`.
  *
  * @param {number} x alongshore world coordinate in metres
  * @param {number} z cross-shore world coordinate in metres
@@ -70,7 +70,7 @@ export class Heightfield {
     }
 
     /**
-     * Unbounded analytic base height, matching `coastHeight` in WGSL.
+     * Unbounded analytic base height, matching `coastHeight` in GLSL.
      * @param {number} x @param {number} z
      */
     heightAt(x, z, variationScale = 1) {

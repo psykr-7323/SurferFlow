@@ -216,7 +216,7 @@ export class Terrain {
         const deformSize = this.deform.size;
 
         // Clipmap rings follow the player, not the viewer — see the note on
-        // `lodCenter` in terrain.vertex.wgsl. No extra snapping here;
+        // `lodCenter` in terrain.vertex.glsl. No extra snapping here;
         // `placeClipmapVertex` snaps per ring already.
         _lod.set(focus.x, focus.z);
 

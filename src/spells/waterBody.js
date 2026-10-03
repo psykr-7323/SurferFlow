@@ -36,7 +36,7 @@ import { whenReady, bindMatrixArray } from "../core/gpuUtil.js";
 import { CASCADE_COUNT } from "../render/shadows.js";
 import { SPELL_LIGHT_UNIFORMS } from "./spellLights.js";
 
-/** Must match `array<vec4f, 8>` in `water.vertex.wgsl`. */
+/** Must match `array<vec4f, 8>` in `water.vertex.glsl`. */
 export const STRAND_MAX = 8;
 
 /**

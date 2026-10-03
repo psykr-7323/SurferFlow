@@ -7,7 +7,7 @@
  * It is the wake's cross-section on a different spine, and that is not a
  * shortcut. A carve's wall of snow and a bent wave of slush are the same
  * object — mass thrown out of the ground and held up by its own momentum — so
- * they are drawn by the same section integral out of `lib/wake.wgsl`, reached
+ * they are drawn by the same section integral out of `lib/wake.glsl`, reached
  * through the water material's sheet profile. What differs is what the spine is:
  * the wake's is a record of where the board went, and this one is an arc that
  * grows outward from where the spell was cast.

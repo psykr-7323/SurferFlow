@@ -58,15 +58,15 @@ import { Matrix, Vector2, Vector3 } from "@babylonjs/core/Maths/math.vector";
 import { Color3 } from "@babylonjs/core/Maths/math.color";
 import { S } from "../core/settings.js";
 
-import postCommonLib from "../shaders/lib/postCommon.wgsl?glsl";
-import taaFrag from "../shaders/post/taa.fragment.wgsl?glsl";
-import ssrFrag from "../shaders/post/ssr.fragment.wgsl?glsl";
-import shaftsFrag from "../shaders/post/shafts.fragment.wgsl?glsl";
-import bloomDownFrag from "../shaders/post/bloomDown.fragment.wgsl?glsl";
-import bloomBlurFrag from "../shaders/post/bloomBlur.fragment.wgsl?glsl";
-import dofFrag from "../shaders/post/dof.fragment.wgsl?glsl";
-import tonemapFrag from "../shaders/post/tonemap.fragment.wgsl?glsl";
-import sharpenFrag from "../shaders/post/sharpen.fragment.wgsl?glsl";
+import postCommonLib from "../shaders/lib/postCommon.glsl?raw";
+import taaFrag from "../shaders/post/taa.fragment.glsl?raw";
+import ssrFrag from "../shaders/post/ssr.fragment.glsl?raw";
+import shaftsFrag from "../shaders/post/shafts.fragment.glsl?raw";
+import bloomDownFrag from "../shaders/post/bloomDown.fragment.glsl?raw";
+import bloomBlurFrag from "../shaders/post/bloomBlur.fragment.glsl?raw";
+import dofFrag from "../shaders/post/dof.fragment.glsl?raw";
+import tonemapFrag from "../shaders/post/tonemap.fragment.glsl?raw";
+import sharpenFrag from "../shaders/post/sharpen.fragment.glsl?raw";
 
 const TONEMAP_MODES = { agx: 0, aces: 1, none: 2 };
 

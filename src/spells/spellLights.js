@@ -14,7 +14,7 @@
  * Allocation per frame: none.
  */
 
-/** Must match `SPELL_LIGHT_MAX` in `lib/spellLights.wgsl`. */
+/** Must match `SPELL_LIGHT_MAX` in `lib/spellLights.glsl`. */
 export const MAX_SPELL_LIGHTS = 4;
 
 /**

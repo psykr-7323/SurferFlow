@@ -27,10 +27,10 @@ import { Vector2, Vector3 } from "@babylonjs/core/Maths/math";
 
 import { S } from "../core/settings.js";
 import { coastShorelineAt } from "../terrain/heightfield.js";
-import oceanVertex from "./ocean.vertex.wgsl?glsl";
-import oceanFragment from "./ocean.fragment.wgsl?glsl";
-import oceanPrepassFragment from "./ocean.prepass.fragment.wgsl?glsl";
-import coastProfile from "../shaders/lib/coast.wgsl?glsl";
+import oceanVertex from "./ocean.vertex.glsl?raw";
+import oceanFragment from "./ocean.fragment.glsl?raw";
+import oceanPrepassFragment from "./ocean.prepass.fragment.glsl?raw";
+import coastProfile from "../shaders/lib/coast.glsl?raw";
 
 const DEFAULT_GRID_N = 160;
 // Eight rings reach just beyond the camera's 4.2 km far plane at the default
@@ -161,7 +161,7 @@ export class Ocean {
     /**
      * Follow a world-space point and advance the wave phase.
      *
-     * The rings snap independently in WGSL and morph across their outer edges,
+     * The rings snap independently in GLSL and morph across their outer edges,
      * so this updates uniforms only: there are no per-frame mesh uploads.
      *
      * @param {number} dt Seconds since the preceding frame.
@@ -346,7 +346,7 @@ export class Ocean {
 
 /**
  * Static nested square lattice. Positions encode (grid X, LOD level, grid Z);
- * the WGSL vertex stage assigns world coordinates every frame.
+ * the GLSL vertex stage assigns world coordinates every frame.
  * @param {import("@babylonjs/core/scene").Scene} scene
  * @param {number} gridN
  * @param {number} levels

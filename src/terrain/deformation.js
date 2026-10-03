@@ -2,7 +2,7 @@
  * The terrain state buffer — persistent, additive snow deformation.
  *
  * Two RGBA16F targets ping-ponged by a full-screen pass when the window moves,
- * a brush arrives or enough relaxation time accumulates (`deformSim.fragment.wgsl`).
+ * a brush arrives or enough relaxation time accumulates (`deformSim.fragment.glsl`).
  * The pass scrolls, relaxes and splats in one dispatch; there is no separate
  * clear, no copy and no readback.
  *
@@ -38,7 +38,7 @@ import { whenReady } from "../core/gpuUtil.js";
  */
 export const COVERAGE = 80;
 
-/** Rows in the brush data texture. Must match `deformSim.fragment.wgsl`. */
+/** Rows in the brush data texture. Must match `deformSim.fragment.glsl`. */
 const BRUSH_ROWS = 3;
 const MAX_BRUSHES = 96;
 

@@ -9,7 +9,7 @@
  * would mean sixty `Matrix` instances and a copy per bone per frame to flatten
  * them again.
  *
- * Layout matches Babylon's, which is also what WGSL wants: read as column-major,
+ * Layout matches Babylon's, which is also what GLSL wants: read as column-major,
  * elements 0-2 are the X axis, 4-6 the Y axis, 8-10 the Z axis and 12-14 the
  * translation, so `M * vec4(p, 1)` in a shader is the local-to-world transform.
  *

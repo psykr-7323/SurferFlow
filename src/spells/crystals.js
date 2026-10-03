@@ -119,7 +119,7 @@ export class CrystalField {
         // and costs a black inside face wherever the winding flips.
         mat.backFaceCulling = false;
         // Blended *and* depth-writing. See the note at the top of
-        // `crystal.fragment.wgsl`: this is what gives transparency against the
+        // `crystal.fragment.glsl`: this is what gives transparency against the
         // snow without letting forty prisms blend over each other.
         mat.alphaMode = Constants.ALPHA_COMBINE;
         mat.needAlphaBlending = () => true;

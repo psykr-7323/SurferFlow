@@ -12,7 +12,6 @@
     "webgl2",
     "babylonjs",
     "glsl",
-    "wgsl",
     "surf",
     "terrain",
     "procedural",

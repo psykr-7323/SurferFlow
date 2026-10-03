@@ -2,7 +2,8 @@
 
 A procedural coastal surf playground built with Babylon.js and WebGL 2. The
 shoreline, sand, ocean, plants, rider and surfboard are generated from code.
-Shader sources are translated from WGSL to GLSL ES 3.00 by the Vite build plugin.
+All shader sources are native GLSL ES 3.00 for the WebGL 2 renderer. Vite imports them
+as strings with its standard `?raw` loader.
 
 ## Run locally
 
@@ -94,22 +95,19 @@ src/
   shaders/      surfaces, shared includes, effects, post shaders
   spells/       procedural coastal effects
   terrain/      analytic coast, clipmap, local deformation
-  ui/           settings and performance panel
   vfx/          particles and wake emitters
   world/        ocean and coastal vegetation
-scripts/
-  wgslToGlsl.js build-time shader translation
 ```
 
 Build output is generated in `dist/`. No external textures, character assets or
 animation clips are required. The renderer retains procedural effect and
 material helpers from the project's earlier prototype.
 
-## Build scripts
+## Shader development
 
-`scripts/wgslToGlsl.js` is used by the Vite build plugin to translate the project's
-WGSL shader sources into GLSL ES 3.00 for WebGL 2. It runs during development and
-production builds; the browser receives translated shaders, not the translator.
+Edit the `.glsl` files directly. Shared shader libraries are registered as Babylon
+includes, and JavaScript imports shader strings using `.glsl?raw`. The renderer
+requires WebGL 2. There is no shader translation step or alternate renderer.
 
 The product, package metadata and shader namespaces use the SurferFlow name.
 Stars are generated once from seeded random spherical positions, so their placement
