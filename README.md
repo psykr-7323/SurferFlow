@@ -1,131 +1,145 @@
 # SurferFlow
 
-A procedural coastal surf playground built with Babylon.js and WebGL 2. The
-shoreline, sand, ocean, plants, rider and surfboard are generated from code.
-All shader sources are native GLSL ES 3.00 for the WebGL 2 renderer. Vite imports them
-as strings with its standard `?raw` loader.
+A procedural coastal surfing playground built with **Babylon.js, WebGL 2 and
+native GLSL ES 3.00**. Explore a meandering beach, head into the ocean and ride
+changing swells through a five-minute day and night cycle.
+
+The coast, water, vegetation, rider, surfboard and stars are generated from code.
+No downloaded character models, animation clips or texture assets are required.
+
+## Features
+
+- An unbounded coast with terrain and ocean geometry generated around the rider.
+- Five directional swells, changing wave sets, shoreline foam and a surfer wake.
+- Automatic transition from carrying the board on land to standing on it at sea.
+- Walking, running, surfing and jumps that retain forward momentum.
+- Sunrise, sunset, moonlight and twinkling stars in a five-minute cycle.
+- Open beach sand with sea oats, dune scrub, pines and coastal oaks farther inland.
+- A procedural rider with board shorts, a sleeveless top, hair and sunglasses.
+- Native GLSL shaders, cascaded shadows and temporal antialiasing.
 
 ## Run locally
 
+Install Node.js and npm, then run:
+
 ```sh
-npm install
+npm ci
 npm run dev
 ```
 
-Use `npm run build` for a production build, then `npm run preview` to view it.
-A browser and graphics device with WebGL 2 support are required.
+Open the local address printed by Vite, normally `http://localhost:5173`.
+A browser and graphics device with **WebGL 2 support** are required.
+The loading screen waits for shader compilation before the scene starts.
+
+### Production build
+
+```sh
+npm run build
+npm run preview
+```
+
+`npm run build` writes the static website to `dist/`. `npm run preview` serves that
+build locally; use the address printed in the terminal.
+
+For static hosting, use **`npm run build`** as the build command and **`dist`** as
+the output directory. The deployed game does not require a backend server.
 
 ## Controls
 
 | Input | Action |
 |---|---|
-| Click the scene | Capture the pointer |
+| Click the scene | Capture the pointer for mouse look |
+| Mouse / drag | Look around; drag is the fallback when pointer lock is unavailable |
+| Mouse wheel while pointer is captured | Zoom |
 | WASD / arrow keys | Move relative to the camera |
-| Mouse / wheel | Look / zoom |
+| Shift + movement | Run on land or surf faster |
 | Space | Jump on land or water |
-| Shift + movement | Run on land / surf faster |
-| Reach the water | Move the board under the feet and begin surfing |
-| WASD / arrows while surfing | Ride in the chosen direction; release to stop |
+| Escape | Release pointer capture |
+| Enter the water | Automatically move the surfboard under the feet |
+| Release movement while surfing | Stop horizontal movement when grounded |
+
+Moving jumps keep the horizontal velocity at takeoff, even when movement keys
+are released in the air. Stationary jumps stay in place. The rider and board lift
+together during water jumps. Normal movement controls resume on landing.
+
+There are no number-key spells, hollow barrel-wave obstacles or F1 settings page.
+The screen also has no speed streaks, radial speed blur or speed-based FOV widening.
+
+## Ocean and coast
+
+The coast meanders along world X, with water on the positive-Z side of the local
+shoreline. Terrain and ocean use player-centred clipmaps: a bounded set of nested
+meshes follows the rider instead of storing an entire world.
+
+Five directional swells displace the water. Their heights are mirrored by the CPU
+surface query, so the rider and board follow the same waves that are rendered.
+Wave sets smoothly alternate between smaller and larger swells every **30 seconds**.
+Fine surface detail is filtered at a distance.
+
+Shallow teal water deepens offshore and reflects the sky. A shared swash front
+coordinates foam on the water and wet beach sand. Breaking bands, crest foam and
+a V-shaped wake provide motion detail without screen-space speed effects.
+
+Sea-side terrain is clipped out of the visible and depth passes and lowered below
+wave troughs. Water is rendered from both sides, and reflections exclude the sky
+texture's sand-colored ground hemisphere to avoid tan bands on steep wave faces.
+
+The first **22 metres** of beach remain clear of grass. Shrubs and trees begin
+farther inland, with deterministic placement in a bounded window around the rider.
 
 ## Day and night
 
-The scene starts in daylight at 10:00.
-A full sunrise, daylight, sunset and moonlit night lasts **five minutes** by default.
-The sun and moon follow opposite continuous arcs, and stars twinkle at night.
+The scene starts at **10:00**. A full sunrise, daylight, sunset and moonlit night
+lasts **five minutes** by default. The sun and moon follow opposite continuous arcs,
+and seeded spherical star positions provide a stable, scattered night sky.
 
-One shared sky texture drives the visible sky, ambient lighting, reflections,
-and atmospheric haze. The sun illuminates the scene by day; the moon and stars
-appear at night. Adaptive exposure eases between daylight and night settings,
-with exposure constants in `src/core/settings.js`.
+The visible sky, ambient light, water reflections and haze share the same sky
+texture. Adaptive exposure eases between day and night, and the clock advances
+independently from the movement simulation timestep.
 
-## Coast and water
+## Rider and rendering
 
-The analytic coast meanders along world X. The positive-Z side of the local
-shoreline is water; the land rises into the beach and dunes on the other side.
-Terrain and ocean use player-centred clipmaps, keeping geometry bounded as the
-rider explores the coast.
+The rider wears a cream sleeveless top, teal board shorts, blue sunglasses and
+brown swept hair, with exposed arms, legs and bare feet. Procedural skeleton
+animation and planted-foot IK drive walking and running. Hair and accessories
+share the body's skinning, shadow and depth passes.
 
-Five directional swells displace the water. The CPU height query mirrors their
-wavelengths, amplitudes, speeds and shoreline taper so the rider and board
-follow the visible surface. Fine normal detail is filtered at a distance.
-Shallow teal water deepens offshore and reflects the current sky.
+Rendering includes cascaded shadows, a camera depth prepass, temporal antialiasing,
+bloom, tone mapping, sharpening and subtle grain. Depth of field is available but
+**disabled by default**.
 
-A shared swash front drives foam on the water and wet sand. Breaking bands,
-crest foam, and a V-shaped surfer wake add separate motion cues. The foam is
-lit by the same daylight or moonlight as the water. Waves smoothly alternate between smaller and larger sets every **30 seconds**.
-The same changing height drives the visible water and rider grounding.
-Tuning constants live in `src/core/settings.js`.
-
-Sea oats, dune scrub, pines and spreading coastal oaks form layered groves
-with grassy backdunes and open beach sand. Placement is deterministic within a
-bounded window around the rider.
-
-## Rider
-
-The procedural rider wears a cream linen sleeveless top and teal board shorts,
-with exposed arms and legs, bare feet, brown swept hair and blue sunglasses.
-The short shirt hem retains cloth motion without covering the legs. Hair and
-accessories share the body skinning, shadow and depth passes. The board moves
-from its carried pose to the feet as the rider reaches water.
-
-Locomotion uses a procedural skeleton and planted-foot IK. Animation and cloth
-transforms share one small texture upload per frame.
-
-## Rendering and development
-
-- WebGL 2 engine with GLSL ES 3.00 shaders.
-- Shared shader includes for coast placement, skinning, shading and shadows.
-- Cascaded shadows and a matching depth prepass.
-- Temporal antialiasing, bloom, depth of field, tone mapping and sharpening.
-- Automatic sky and wave cycles with no settings overlay.
-- The application inspection handle is `SurferFlow` in the browser console.
-
-Shader uniforms must be registered before a procedural texture compiles. The sky
-initialization does this before its first bake so ambient illumination and
-reflections receive valid sunlight rather than default zero-valued uniforms.
-Sky bakes are throttled and serialized while the clock advances.
+## Development
 
 ```text
 src/
-  character/    geometry, skeleton, short shirt simulation, sand contact
-  core/         input, camera, settings, solar clock, loading, performance
+  character/    rider geometry, skeleton, cloth, movement and sand contact
+  core/         input, camera, settings, solar clock, loading and performance
   post/         post-processing chain
-  render/       sky, shadows, depth prepass
-  shaders/      surfaces, shared includes, effects, post shaders
-  terrain/      analytic coast, clipmap, local deformation
-  vfx/          particles and wake emitters
+  render/       sky, shadows and depth prepass
+  shaders/      native GLSL surfaces, shared includes and post shaders
+  terrain/      analytic coast, clipmap and local deformation
+  vfx/          pooled spray particles and wake geometry
   world/        ocean and coastal vegetation
 ```
 
-Build output is generated in `dist/`. No external textures, character assets or
-animation clips are required. The retired snow spell modules and their ice and water-strand shaders have been
-removed.
+Edit `.glsl` shaders directly. Shared libraries are registered as Babylon shader
+includes; Vite imports shader strings with `.glsl?raw`. There is no WGSL source,
+shader translator or alternate renderer in the application.
 
-## Shader development
+Tuning values live in `src/core/settings.js`. The `SurferFlow` handle in the browser
+console exposes the running scene for development inspection.
 
-Edit the `.glsl` files directly. Shared shader libraries are registered as Babylon
-includes, and JavaScript imports shader strings using `.glsl?raw`. The renderer
-requires WebGL 2. There is no shader translation step or alternate renderer.
+### Dependencies
 
-The product, package metadata and shader namespaces use the SurferFlow name.
-Stars are generated once from seeded random spherical positions, so their placement
-is stable and has no grid-centred bands. The first 22 metres of beach stay clear
-of grass, with shrubs and trees beginning farther inland.
+| Package | Role |
+|---|---|
+| `@babylonjs/core` | WebGL 2 engine, scene, meshes, materials and math |
+| `vite` | Development server, raw shader imports and production bundling; development dependency |
 
-## Dependencies
+`package.json` defines those dependencies and the npm commands. `package-lock.json`
+records resolved versions for reproducible installs. `vite.config.js` holds the
+server, build and asset settings. No additional Babylon material package is used.
 
-`@babylonjs/core` supplies the WebGL 2 engine, scene, meshes, materials and math.
-`vite` is a development dependency for serving source files, importing GLSL as raw
-text, and bundling a deployable static website. No extra material package is needed.
+## License
 
-## Movement and jumping
-
-Number-key effects have been removed. WASD controls movement and Shift increases
-running or surfing speed. The ocean retains its normal changing wave sets.
-
-Space jumps with the rider's current horizontal momentum, including when movement
-keys are released midair. Stationary jumps stay in place. Normal stop-on-release
-controls resume on landing. The rider and surfboard lift together at sea.
-
-The ocean remains visible from beneath waves. Sea-side terrain is clipped out in
-beauty and depth passes and lowered below troughs to prevent exposed sand offshore.
+[MIT](LICENSE)
