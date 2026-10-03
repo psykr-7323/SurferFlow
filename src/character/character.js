@@ -26,7 +26,6 @@ import { buildBody, buildClothMesh, buildSurfboard } from "./build.js";
 import { S } from "../core/settings.js";
 import { whenReady, bindMatrixArray } from "../core/gpuUtil.js";
 import { CASCADE_COUNT } from "../render/shadows.js";
-import { SPELL_LIGHT_UNIFORMS } from "../spells/spellLights.js";
 
 /** Transform texture geometry. Width covers the widest of bones or panel cols. */
 const TEX_W = 48;
@@ -178,7 +177,7 @@ export class Character {
             "fogDensity", "fogHeightFalloff", "fogStart", "aerialStrength",
             "ambientIntensity", "sssStrength", "weaveDensity",
             "screenSize",
-            ...SPELL_LIGHT_UNIFORMS,
+
         ];
         const attributes = isCloth
             ? ["position", "uv", "aux"]

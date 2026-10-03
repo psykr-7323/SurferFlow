@@ -20,7 +20,6 @@ import { Character } from "./character/character.js";
 import { SandContact } from "./character/sandContact.js";
 import { SprayField } from "./vfx/particles.js";
 import { SurfWake } from "./vfx/surfWake.js";
-import { SpellSystem } from "./spells/spellSystem.js";
 import { Sky } from "./render/sky.js";
 import { ShadowSystem } from "./render/shadows.js";
 import { Terrain } from "./terrain/terrain.js";
@@ -124,7 +123,7 @@ async function boot() {
     onChange("showCharacter", (v) => figure.setVisible(v));
     figure.registerPrepass(depthPass);
 
-    // Shared airborne effects: beach footfalls, surf spray and spell particles.
+    // Shared airborne effects: beach footfalls, surf spray.
     const spray = new SprayField(scene, terrain, sky, shadows, ocean);
 
     // Feet and the surf groove write into the terrain state buffer through here.
@@ -136,18 +135,6 @@ async function boot() {
     wake.setWallEnabled(false);
     onChange("showWake", (v) => wake.setEnabled(v));
     wake.registerPrepass(depthPass);
-
-    // The five existing spells. They still write to the terrain state buffer
-    // and can light the character and spray through the shared light pool.
-    const spells = new SpellSystem(
-        scene, sky, shadows, terrain, character, figure.figure, rig, spray
-    );
-    // Every surface a spell can light.
-    spells.addConsumers(
-        terrain.material, figure.bodyMat, figure.clothMat,
-        wake.material, spray.material
-    );
-    spells.registerPrepass(depthPass);
 
     // The rig needs the terrain and current ocean crest under its spring arm.
     rig.groundAt = groundAt;
@@ -171,13 +158,10 @@ async function boot() {
     spray.update(0, rig.camera.position);
     await spray.warmUp();
     await wake.warmUp();
-    await spells.warmUp(
-        character.position.x + 3, character.position.y, character.position.z + 3
-    );
     await whenReady(sky.material, "sky material", [sky.mesh, false]);
     await whenReady(ocean.material, "ocean material", [ocean.mesh, false]);
     await depthPass.warmUp();
-    post.update(0, 0, rig.distance);
+    post.update(0, rig.distance);
     const passes = post.passes;
     for (let i = 0; i < passes.length; i++) {
         await whenReady(passes[i], "post:" + passes[i].name);
@@ -196,10 +180,6 @@ async function boot() {
         }
         await loading.nextFrame();
     }
-    // Only now: the spell meshes had to be standing *through* those frames for
-    // their render pipelines to exist. See `WaterBody.warmUp`.
-    spells.finishWarmUp();
-
     // ------------------------------------------------------------- run loop
     let prev = performance.now();
     let time = 0;
@@ -240,15 +220,10 @@ async function boot() {
         // passes derive from the camera. Must be after the rig has moved and
         // before anything reads `scene.getTransformMatrix()` — which the depth
         // prepass and the beauty pass both do.
-        post.update(dt, character.streak01, rig.distance);
+        post.update(dt, rig.distance);
         sky.update(clockDt);
         sky.render(rig, time);
         shadows.update(rig.camera, sky.sunDir);
-        // After the shadow refit, so the water and the ice carry this frame's
-        // cascade matrices; before the terrain, so the brushes every spell
-        // writes are in the staging array when the simulation pass runs.
-        spells.update(dt, rig.camera.position);
-        const tSpells = performance.now();
         terrain.update(rig.camera.position, character.position, dt, ocean.time + dt);
         ocean.update(dt, character.position, rig.camera.position, undefined, character);
         const tTerrain = performance.now();
@@ -268,8 +243,7 @@ async function boot() {
         const tRender = performance.now();
 
         mark("cpu character", tChar - tFrame);
-        mark("cpu spells", tSpells - tChar);
-        mark("cpu terrain", tTerrain - tSpells);
+        mark("cpu terrain", tTerrain - tChar);
         mark("cpu vegetation", tVegetation - tTerrain);
         mark("cpu wake+spray", tVfx - tVegetation);
         mark("cpu submit", tRender - tVfx);
@@ -284,7 +258,6 @@ async function boot() {
             vegetation.triangles +
             (S.showCharacter ? figure.triangles : 0) +
             (wake.mesh.isVisible ? wake.mesh.metadata.triangles : 0) +
-            spells.triangles +
             spray.liveCount * 2;
 
         sample(dtMs);
@@ -297,7 +270,7 @@ async function boot() {
     document.getElementById("surferflow-hud")?.classList.add("show");
 
     globalThis.SurferFlow = {
-        engine, scene, rig, character, figure, contact, spray, wake, spells,
+        engine, scene, rig, character, figure, contact, spray, wake,
         terrain, ocean, vegetation, sky, shadows, post, depthPass,
         S, input, perfStats: stats,
     };

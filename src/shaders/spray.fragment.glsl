@@ -29,15 +29,12 @@ uniform float fogHeightFalloff;
 uniform float fogStart;
 uniform float aerialStrength;
 uniform float ambientIntensity;
-uniform vec4 spellLightPos[4];
-uniform vec4 spellLightCol[4];
-uniform float spellLightCount;
 // -----------------------------------------------------------------------------
 // Coastal spray and droplets.
 //
 // The pooled billboards now read as translucent water droplets and fine mist.
 // Soft particles stay hazy; hard particles get a tighter highlight and firmer
-// silhouette. They retain the same pool state, shadowing, and spell-light path.
+// silhouette. They retain the same pool state, and shadowing.
 //
 // The billboard is shaded as a sphere so its water tint and specular highlight
 // follow a rounded droplet instead of reading as a flat disc.
@@ -45,7 +42,6 @@ uniform float spellLightCount;
 
 #include<surferFlowNoise>
 #include<surferFlowShading>
-#include<surferFlowSpellLights>
 #include<surferFlowAtmosphere>
 
 
@@ -103,10 +99,6 @@ void main() {
     color += vec3(0.06, 0.28, 0.40) * fresnel * 0.25;
     color += albedo * INV_PI * shIrradiance(N, shR) * ambientIntensity * 0.25;
 
-    // Preserve spell lighting for droplets passing through spell effects.
-    if(spellLightCount > 0.5) {
-        color += spellLightingParticle(world, N, albedo, spellLightPos, spellLightCol, spellLightCount);
-    }
 
     color = applyAerial(color, cameraPos, world, -V, L, skyLUT, sun, fogDensity, fogHeightFalloff, fogStart, aerialStrength);
 

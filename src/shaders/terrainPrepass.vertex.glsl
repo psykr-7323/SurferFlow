@@ -41,6 +41,9 @@ void main() {
 
     vec2 worldXZ = cv.worldXZ;
     float h = coastHeight(worldXZ, shorelineZ, coastlineVariation);
+    // Hidden sea-side terrain stays well below troughs in every geometry pass.
+    float seaDistance = worldXZ.y - coastShorelineZ(worldXZ.x, shorelineZ, coastlineVariation);
+    h -= 12.0 * smoothstep(0.0, 4.0, seaDistance);
 
     // Same gate, same fade, same filter width as the beauty pass. See the long
     // note in terrain.vertex.glsl.

@@ -38,7 +38,6 @@ import { Vector3, Vector4 } from "@babylonjs/core/Maths/math";
 import { S } from "../core/settings.js";
 import { whenReady, bindMatrixArray } from "../core/gpuUtil.js";
 import { CASCADE_COUNT } from "../render/shadows.js";
-import { SPELL_LIGHT_UNIFORMS } from "../spells/spellLights.js";
 
 /** Spine capacity. At 30 cm a sample this is 28.5 m, comfortably past `LIFE`. */
 const SPINE_MAX = 96;
@@ -179,7 +178,7 @@ export class SurfWake {
                     "fogDensity", "fogHeightFalloff", "fogStart", "aerialStrength",
                     "ambientIntensity", "sssStrength",
                     "glintIntensity", "glintGrazing", "wakeTime", "wakeDebug",
-                    ...SPELL_LIGHT_UNIFORMS,
+
                 ],
                 samplers: ["wakeTex", "skyLUT", "cascade0", "cascade1", "cascade2"],
                 shaderLanguage: ShaderLanguage.GLSL,
@@ -290,7 +289,7 @@ export class SurfWake {
         // Below a walking pace there is nothing being displaced, and laying
         // samples anyway leaves a knot of overlapping wall wherever the player
         // coasted to a stop.
-        const active = ch.surf > 0.06 && ch.speed > 1.6;
+        const active = !ch.airborne && ch.surf > 0.06 && ch.speed > 1.6;
 
         if (active) {
             if (!this._active) this._maybeRestart();
@@ -477,7 +476,7 @@ export class SurfWake {
         const ch = this.controller;
         const sp = this.spray;
         const n = this._count;
-        if (n < 3 || ch.surf < 0.15 || ch.speed < 3.0) {
+        if (ch.airborne || n < 3 || ch.surf < 0.15 || ch.speed < 3.0) {
             this._plumeOwed = 0;
             return;
         }

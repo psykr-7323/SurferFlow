@@ -15,7 +15,6 @@ uniform float mode;
 uniform float grainAmount;
 uniform float time;
 uniform float vignette;
-uniform float speedStreak;
 uniform float bloomAmount;
 uniform float shaftAmount;
 // -----------------------------------------------------------------------------
@@ -50,7 +49,6 @@ uniform float shaftAmount;
        // 0 = AgX, 1 = ACES, 2 = none
 
 
-/// 0 = standing still, 1 = flat out on a surf run. Drives the speed streaks.
 
 
 // ------------------------------------------------------------------ AgX
@@ -110,60 +108,8 @@ vec3 linearToSrgb(vec3 c) {
     return selectValue(hi, lo, lessThanEqual(c, vec3(0.0031308)));
 }
 
-// ------------------------------------------------------------ speed streaks
-//
-// Two effects, both gated on the same value and both confined to the periphery,
-// because that is where speed is actually read: the centre of the frame is what
-// the player is looking at and blurring it just makes the demo feel broken.
-//
-//   radial smear    six taps drawn toward the focus. This is the one that does
-//                   the work — it is the only thing in the chain that makes the
-//                   *scene* look fast rather than decorating it.
-//   spindrift       sparse radial strands of blown snow tearing past the lens,
-//                   phase-advanced with time so they stream outward.
-//
-// Both are applied before the tonemapper so its shoulder rolls the strands off
-// rather than letting them clip, and both cost nothing at all when the player is
-// not moving — `speedStreak` is zero and the whole block is skipped.
-
-float streakStrands(vec2 d, float r, float t) {
-    float ang = atan(d.y, d.x);
-    float a = ang * 96.0;
-    float cell = floor(a);
-    float rnd = fract(sin(cell * 12.9898 + 4.1) * 43758.5453);
-    // Only a fraction of the angular cells carry a strand; a strand in every one
-    // reads as a zoom-blur artefact rather than as blowing snow.
-    if(rnd > 0.34) { return 0.0; }
-
-    float across = abs(fract(a) - 0.5) * 2.0;
-    // The radial frequency is the number that decides whether this reads as
-    // blowing snow or as scratches on the lens. At one cycle across the frame a
-    // strand is a straight line from the centre to the corner; at fourteen it is
-    // a two-centimetre dash, which is what a grain of spindrift crossing the
-    // frame in a fifteenth of a second actually looks like.
-    float phase = fract(r * (11.0 + rnd * 24.0) - t * (7.0 + rnd * 22.0));
-    float seg = smoothstep(0.55, 0.86, phase) * (1.0 - smoothstep(0.86, 1.0, phase));
-    return pow(1.0 - across, 20.0) * seg;
-}
-
-
 void main() {
     vec3 c = texture(textureSampler, vUV).rgb;
-
-    // Radial smear, on the scene radiance before exposure.
-    vec2 dFocus = vUV - vec2(0.5, 0.5);
-    float radius = length(dFocus) * 2.0;
-    float streak = speedStreak * smoothstep(0.34, 1.05, radius);
-    if(streak > 0.002) {
-        vec3 acc = c;
-        for(int i = 1; i <= 6; i++) {
-            float t = float(i) / 6.0 * streak * 0.026;
-            // textureSampleLevel, not textureSample: this loop sits under a
-            // non-uniform branch, where implicit derivatives are undefined.
-            acc += textureLod(textureSampler, vUV - dFocus * t, 0.0).rgb;
-        }
-        c = mix(c, acc / 7.0, 0.88);
-    }
 
     // Light shafts, in scene radiance so the tone curve rolls them off with
     // everything else. Added rather than blended: a shaft is light arriving at
@@ -184,13 +130,6 @@ void main() {
         // Weighted toward the wide level: a tight halo on a snow field reads as a
         // rendering artefact, a broad one reads as glare in the air.
         c += (near * 0.35 + far * 0.65) * bloomAmount;
-    }
-
-    // Blown snow, added in exposed linear so its brightness is stated relative
-    // to middle grey rather than to whatever the scene happens to be sitting at.
-    if(streak > 0.002) {
-        float s = streakStrands(dFocus, radius, time);
-        c += vec3(0.88, 0.94, 1.06) * s * streak * 0.16;
     }
 
     // Contrast about middle grey, applied in linear before the curve so it

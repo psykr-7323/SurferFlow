@@ -39,6 +39,9 @@ void main() {
 
     vec2 worldXZ = cv.worldXZ;
     float h = coastHeight(worldXZ, shorelineZ, coastlineVariation);
+    // Hidden sea-side terrain stays well below troughs in every geometry pass.
+    float seaDistance = worldXZ.y - coastShorelineZ(worldXZ.x, shorelineZ, coastlineVariation);
+    h -= 12.0 * smoothstep(0.0, 4.0, seaDistance);
 
     // Carved snow must cast and receive its own shadow, so the depth pass has to
     // see the deformation too. A trail that does not self-shadow reads as a

@@ -33,9 +33,6 @@ uniform float ambientIntensity;
 uniform float sssStrength;
 uniform float weaveDensity;
 uniform vec2 screenSize;
-uniform vec4 spellLightPos[4];
-uniform vec4 spellLightCol[4];
-uniform float spellLightCount;
 // -----------------------------------------------------------------------------
 // The fabric material — shared by the skinned body and the simulated garments.
 //
@@ -67,7 +64,6 @@ uniform float spellLightCount;
 
 #include<surferFlowNoise>
 #include<surferFlowShading>
-#include<surferFlowSpellLights>
 #include<surferFlowAtmosphere>
 
 
@@ -299,20 +295,6 @@ void main() {
     vec3 skyRefl = textureLod(skyLUT, dirToLatLong(R), mip).rgb;
     color += skyRefl * envBRDFApprox(vec3(0.035), roughness, NdotV)
            * ambientIntensity * ao;
-
-    // --- spell light --------------------------------------------------------
-    // The caster is standing inside the thing they are casting, so this is the
-    // one material where the spell lights are almost always the *dominant*
-    // source: a 13-degree sun is behind the figure for most of the framing this
-    // demo uses, and a robe lit only by sky ambient is a silhouette. A ribbon of
-    // water held at arm's length is what puts light back on the front of it.
-    //
-    // Wrapped harder than the sun's diffuse, because at half a metre the light
-    // is a broad source rather than a point, and thin cloth over a bright
-    // emitter genuinely does carry light around the fold.
-    if(spellLightCount > 0.5) {
-        color += spellLightingSurface(world, N, V, albedo, vec3(0.035), roughness, 0.35, spellLightPos, spellLightCol, spellLightCount) * ao;
-    }
 
     // ------------------------------------------------------- aerial perspective
     color = applyAerial(color, cameraPos, world, -V, L, skyLUT, sun, fogDensity, fogHeightFalloff, fogStart, aerialStrength);

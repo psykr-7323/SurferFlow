@@ -1,7 +1,6 @@
 /**
  * Broad, camera-following ocean surface for the coastal world.
  *
- * This is intentionally independent from the swept water bodies used by spells.
  * The ocean is a continuous, opaque sheet; its clipmap follows the supplied
  * focus point while the shader evaluates waves and shoreline foam in world
  * coordinates. Its default base shoreline is world Z = 0, with a deterministic
@@ -146,7 +145,7 @@ export class Ocean {
                 shaderLanguage: ShaderLanguage.GLSL,
             }
         );
-        mat.backFaceCulling = true;
+        mat.backFaceCulling = false;
         mat.setTexture("skyLUT", this.sky.lut);
         return mat;
     }
@@ -209,7 +208,7 @@ export class Ocean {
                 Math.cos(wakeState.facing || 0)
             );
             this._wakeSpeed = Math.max(0, Number.isFinite(speed) ? speed : 0);
-            this._wakeActivity = S.showWake
+            this._wakeActivity = S.showWake && !wakeState.airborne
                 ? clamp01(wakeState.surf || 0) * clamp01((this._wakeSpeed - 2.0) / 5.0)
                 : 0;
         } else {
@@ -224,10 +223,8 @@ export class Ocean {
     }
 
     /**
-     * Sample the visible ocean height for render-side grounding. Horizontal
-     * locomotion remains on the mean sea plane; the character can follow the
-     * same broad swell vertically without bobbing or clipping through opaque
-     * wave crests. `time` can be `this.time + dt` before the next update.
+     * Sample the visible swell for rider and board grounding.
+     * `time` can be `this.time + dt` before the next update.
      * @param {number} x
      * @param {number} z
      * @param {number} [time=this.time]
@@ -294,7 +291,7 @@ export class Ocean {
                 shaderLanguage: ShaderLanguage.GLSL,
             }
         );
-        mat.backFaceCulling = true;
+        mat.backFaceCulling = false;
         this.prepassMaterial = mat;
         this._pushStaticUniforms(mat);
         this._pushFrameUniforms(mat);

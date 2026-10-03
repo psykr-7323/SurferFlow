@@ -30,7 +30,6 @@ import { Vector3, Vector4 } from "@babylonjs/core/Maths/math";
 import { S } from "../core/settings.js";
 import { whenReady, bindMatrixArray } from "../core/gpuUtil.js";
 import { CASCADE_COUNT } from "../render/shadows.js";
-import { SPELL_LIGHT_UNIFORMS } from "../spells/spellLights.js";
 
 /**
  * Pool size. A hard cap, not a target — an emission is simply dropped when it is
@@ -126,7 +125,7 @@ export class SprayField {
                     "shadowTexel", "shadowSoftness", "shadowBias",
                     "fogDensity", "fogHeightFalloff", "fogStart", "aerialStrength",
                     "ambientIntensity",
-                    ...SPELL_LIGHT_UNIFORMS,
+
                 ],
                 samplers: ["sprayTex", "skyLUT", "cascade0", "cascade1", "cascade2"],
                 shaderLanguage: ShaderLanguage.GLSL,

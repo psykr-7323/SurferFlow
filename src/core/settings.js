@@ -65,9 +65,6 @@ export const S = {
     wakeHeight: 1.0,
     /** Density of the plume shed off the wake's lip. */
     wakeSpray: 1.0,
-    /** Screen-space speed streaks while surfing. */
-    windStreaks: true,
-    streakStrength: 1.0,
 
     // ------------------------------------------------------------------ water
     oceanWaveHeight: 1.0,
@@ -87,20 +84,6 @@ export const S = {
     showGreenery: true,
     /** Density multiplier for the deterministic vegetation field. */
     greeneryDensity: 1.0,
-
-    // ---------------------------------------------------------------- spells
-    /** Master toggle. Off cancels everything in flight and hides both meshes. */
-    showSpells: true,
-    /** Brightness of the dynamic lights the spells emit. */
-    spellLight: 1.0,
-    /** Density of the spray every spell throws. */
-    spellSpray: 1.0,
-    /**
-     * Artistic scale on the water's absorption path — glacial melt at one end,
-     * tap water at the other. The right value depends on the sun elevation, so
-     * it is a slider rather than a constant.
-     */
-    waterDepthTint: 1.0,
 
     // ------------------------------------------------------------------ post
     taa: true,

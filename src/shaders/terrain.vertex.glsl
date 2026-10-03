@@ -51,6 +51,9 @@ void main() {
     // The base coast is evaluated analytically in every terrain pass. This
     // keeps CPU grounding and the visible surface unbounded along the shore.
     float h = coastHeight(worldXZ, shorelineZ, coastlineVariation);
+    // Hidden sea-side terrain stays well below troughs in every geometry pass.
+    float seaDistance = worldXZ.y - coastShorelineZ(worldXZ.x, shorelineZ, coastlineVariation);
+    h -= 12.0 * smoothstep(0.0, 4.0, seaDistance);
 
     // --- deformation -------------------------------------------------------
     // Real displacement, not a normal-map trick: a trench the player can see the

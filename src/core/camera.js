@@ -3,7 +3,7 @@
  *
  * The arm is deliberately *not* rigid: the pivot chases the character through a
  * critically-damped spring, so hard acceleration pulls the camera back and the
- * character drifts forward in frame. FOV widens with speed, the rig banks into
+ * character drifts forward in frame. The field of view stays fixed, the rig banks into
  * carves, and everything eases. Nothing here snaps.
  *
  * Open snow field, so there is no obstacle collision solve — only the ground
@@ -48,7 +48,7 @@ export class CameraRig {
         this.camera = cam;
         this.scene = scene;
 
-        // Balance the opening view across the surf, beach and vegetated bank.
+        // Balance the opening view across the ocean, beach and vegetated bank.
         this.yaw = (110 * Math.PI) / 180;
         this.pitch = 0.17;
 
@@ -106,7 +106,7 @@ export class CameraRig {
      * @param {Vector3} targetPos character world position (feet)
      * @param {Vector3} targetVel character world velocity
      * @param {number} lean signed lean amount, -1..1, for banking
-     * @param {number} speed01 normalised speed for FOV widening
+     * @param {number} speed01 normalised speed for camera lead
      */
     update(dt, targetPos, targetVel, lean, speed01) {
         // ------------------------------------------------------------- look
@@ -141,7 +141,7 @@ export class CameraRig {
         }
 
         // -------------------------------------------------------------- fov
-        const fovWant = this.baseFov * (1 + speed01 * 0.19);
+        const fovWant = this.baseFov;
         this.fov = expDamp(this.fov, fovWant, 3.2, dt);
 
         // ------------------------------------------------------------- bank

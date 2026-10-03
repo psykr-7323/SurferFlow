@@ -293,7 +293,7 @@ export class Figure {
         // ------------------------------------------------------------- spine
         const gx = ch.position.x;
         const gz = ch.position.z;
-        const groundY = this.groundAt(gx, gz);
+        const groundY = this.groundAt(gx, gz) + ch.jumpHeight;
 
         const rootY = groundY - this.sink + this.hipY + this.bob;
 
@@ -403,6 +403,26 @@ export class Figure {
      * motion, camera motion or frame-rate variation can move a planted foot.
      */
     _updateFeet(h, ch) {
+        if (ch.airborne) {
+            // Lift both feet with the rider; keep the surfboard under them at sea.
+            const fx = Math.sin(ch.facing), fz = Math.cos(ch.facing);
+            const rx = Math.cos(ch.facing), rz = -Math.sin(ch.facing);
+            for (let f = 0; f < 2; f++) {
+                const side = f === 0 ? -0.17 : 0.17;
+                const along = ch.surf * (f === 0 ? 0.11 : -0.11);
+                const x = ch.position.x + rx * side + fx * along;
+                const z = ch.position.z + rz * side + fz * along;
+                const o = f * 3;
+                this.footPos[o] = x;
+                this.footPos[o + 1] = this.groundAt(x, z) + ch.jumpHeight
+                    + ch.surf * BOARD_DECK_HEIGHT + (1 - ch.surf) * 0.08;
+                this.footPos[o + 2] = z;
+                this.footWeight[f] = 0;
+                this.touchdown[f] = false;
+                this._wasStance[f] = false;
+            }
+            return;
+        }
         const surf = ch.surf;
         const speed = ch.speed;
         const run = clamp((speed - 2.5) / 2.9, 0, 1);
@@ -588,32 +608,6 @@ export class Figure {
             let ty = _sh[1] + fY * (sw * 0.38) - uY * (0.43 - run * 0.10) + rY * (sgn * 0.065);
             let tz = _sh[2] + fZ * (sw * 0.38) - uZ * (0.43 - run * 0.10) + rZ * (sgn * 0.065);
             ty += idle * sgn;
-
-            // ---- cast target: both hands up and out along the aim -----------
-            //
-            // A wide base, the leading hand extended along the flow and the
-            // trailing hand drawn back across the body, so the arms describe the
-            // arc the water is about to take. The right hand leads because that
-            // is the hand the ribbon is emitted from.
-            //
-            // Blended, not switched, and it composes with the walk swing rather
-            // than replacing it — a character casting while walking still walks.
-            const cast = ch.cast;
-            if (cast > 0.001) {
-                const ax = ch.castAimX, ay = ch.castAimY, az = ch.castAimZ;
-                // The leading hand reaches along the aim; the trailing one sits
-                // low and inboard, cocked back.
-                const lead = a === 1 ? 1 : 0;
-                const outward = lead ? 0.30 : -0.16;
-                const along = lead ? 0.52 : 0.16;
-                const lift = lead ? 0.26 : 0.02;
-                const cx = _sh[0] + rX * (sgn * 0.30 + outward * sgn) + ax * along + uX * lift;
-                const cy = _sh[1] + rY * (sgn * 0.30) + ay * along + uY * lift + lift * 0.6;
-                const cz = _sh[2] + rZ * (sgn * 0.30 + outward * sgn) + az * along + uZ * lift;
-                tx += (cx - tx) * cast;
-                ty += (cy - ty) * cast;
-                tz += (cz - tz) * cast;
-            }
 
             // ---- surf target: out, forward and a little down ----------------
             if (surf > 0.001) {

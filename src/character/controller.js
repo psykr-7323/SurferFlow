@@ -6,9 +6,7 @@
  *
  *  - WALK: camera-relative desired velocity, eased facing, distance-driven gait
  *    phase so footfalls land where the feet actually are (no sliding).
- *  - SURF: momentum-carrying. Thrust along facing, steering from mouse yaw,
- *    strong lateral grip that bleeds into a drift as you push the carve, and
- *    slope-driven acceleration so dropping down a beach face feels like a gain.
+ *  - SURF: camera-relative input, with Shift for faster riding and no idle drift.
  *
  * Blending between them is eased in both directions; there is no snap.
  */
@@ -21,8 +19,6 @@ import { expDamp } from "../core/camera.js";
 const _wish = new Vector3();
 const _fwd = new Vector3();
 const _right = new Vector3();
-const _tmp = new Vector3();
-const _n = new Vector3();
 
 const WALK_SPEED = 2.5;
 const RUN_SPEED = 5.4;
@@ -30,11 +26,10 @@ const WALK_ACCEL = 26;
 const WALK_DECEL = 30;
 
 const SURF_MAX = 19.5;
-const SURF_THRUST = 11.0;
-const SURF_PUMP = 3.5;
-const SURF_DRAG = 0.42;
-const SURF_TURN = 2.35; // rad/s at full steer
-const SURF_GRIP = 7.5;
+const SURF_SPEED = 8.0;
+const SURF_ACCEL = 22;
+const JUMP_SPEED = 6.0;
+const GRAVITY = 18.0;
 
 /** Gait: metres of travel per full stride cycle, scaled by speed. */
 export function gaitStride(speed) {
@@ -58,36 +53,20 @@ export class CharacterController {
 
         this.facing = 0; // yaw, radians
         this.speed = 0;
-        this.speed01 = 0; // normalised against SURF_MAX, for FOV/wind
+        this.speed01 = 0; // normalised against SURF_MAX
 
         /** 0 = walking, 1 = fully surfing. Eased. */
         this.surf = 0;
         this.inWater = false;
         this.surfActive = false;
 
-        /**
-         * 0 = not casting, 1 = fully in the bending stance. Written by the spell
-         * system, read by the figure.
-         *
-         * It lives here rather than on the spell system because the figure
-         * already reads the controller for everything else it poses from, and a
-         * second source of "what is this character doing" is how the arms and the
-         * legs end up disagreeing about which frame it is.
-         */
-        this.cast = 0;
-        this.castAimX = 0;
-        this.castAimY = 0;
-        this.castAimZ = 1;
-
         /** Signed lean, -1..1 (right positive), from lateral acceleration. */
         this.lean = 0;
         /** Signed carve amount for wake shaping. Positive = turning right. */
         this.carve = 0;
-        /**
-         * 0..1, how hard the screen-space speed streaks should read. Deadbanded
-         * well above walking pace: streaks at a jog make the demo feel cheap.
-         */
-        this.streak01 = 0;
+        this.jumpHeight = 0;
+        this.jumpVelocity = 0;
+        this.airborne = false;
 
         // ------------------------------------------------------------- gait
         this.gaitPhase = 0;
@@ -136,17 +115,41 @@ export class CharacterController {
         rig.getFlatForward(_fwd);
         rig.getFlatRight(_right);
 
-        if (this.surf > 0.5) this._surfStep(h, rig);
-        else this._walkStep(h);
+        // A jump retains takeoff momentum, including after movement is released.
+        if (!this.airborne) {
+            if (this.surf > 0.5) this._surfStep(h);
+            else this._walkStep(h);
+        }
+        if (!this.airborne && this.inWater && Math.hypot(input.moveX, input.moveZ) < 0.001) {
+            this.velocity.x = 0;
+            this.velocity.z = 0;
+        }
 
         // ---------------------------------------------------- integrate + snap
         this.position.x += this.velocity.x * h;
         this.position.z += this.velocity.z * h;
 
-        this.groundY = this.terrain.heightAt(this.position.x, this.position.z);
+        this.groundY = this.ocean?.isWaterAt(this.position.x, this.position.z)
+            ? this.ocean.surfaceHeightAt(this.position.x, this.position.z, this.ocean.time + h)
+            : this.terrain.heightAt(this.position.x, this.position.z);
         this.terrain.normalAt(this.position.x, this.position.z, this.groundNormal);
-        // Snap with a little softness so micro-ripples don't jitter the rig.
-        this.position.y = expDamp(this.position.y, this.groundY, 26, h);
+        // Vertical motion is relative to the local sand or wave surface.
+        const surfaceY = expDamp(this.position.y - this.jumpHeight, this.groundY, 26, h);
+        if (input.jumpPressed && !this.airborne) {
+            this.jumpVelocity = JUMP_SPEED;
+            this.airborne = true;
+        }
+        if (this.airborne) {
+            this.jumpHeight += this.jumpVelocity * h - 0.5 * GRAVITY * h * h;
+            this.jumpVelocity -= GRAVITY * h;
+            if (this.jumpHeight <= 0) {
+                this.jumpHeight = 0;
+                this.jumpVelocity = 0;
+                this.airborne = false;
+            }
+        }
+        this.velocity.y = this.jumpVelocity;
+        this.position.y = surfaceY + this.jumpHeight;
 
         // --------------------------------------------------------- bookkeeping
         this.speed = Math.hypot(this.velocity.x, this.velocity.z);
@@ -162,8 +165,6 @@ export class CharacterController {
         const leanWant = Scalar.Clamp(latAcc / 26, -1, 1) * (0.35 + 0.65 * this.surf);
         this.lean = expDamp(this.lean, leanWant, 6.5, h);
         this.carve = expDamp(this.carve, leanWant, 9, h);
-
-        this.streak01 = this.surf * Scalar.Clamp((this.speed - 7) / 11, 0, 1);
 
         this._gait(h);
     }
@@ -203,61 +204,27 @@ export class CharacterController {
         }
     }
 
-    _surfStep(h, rig) {
-        // Steer from the mouse (camera yaw drift) plus explicit A/D.
-        const steer = Scalar.Clamp(
-            input.moveX * 0.85 + angleDelta(this.facing, rig.yaw) * 1.25,
-            -1,
-            1
+    _surfStep(h) {
+        const amount = Math.hypot(input.moveX, input.moveZ);
+        if (amount < 0.001) {
+            // Releasing movement holds the board at its current X/Z location.
+            this.velocity.x = 0;
+            this.velocity.z = 0;
+            return;
+        }
+        const maxSpeed = input.sprint ? SURF_MAX : SURF_SPEED;
+        _wish.set(
+            (_fwd.x * input.moveZ + _right.x * input.moveX) / amount * maxSpeed,
+            0,
+            (_fwd.z * input.moveZ + _right.z * input.moveX) / amount * maxSpeed
         );
-        this.facing += steer * SURF_TURN * h;
-
-        // Camera shake, and only from the one thing that earns it: an edge
-        // loaded up at speed. Added as a rate rather than as an impulse, so it
-        // reaches an equilibrium against the rig's own decay — hard carve at top
-        // speed settles around 0.4 trauma, which is a couple of centimetres of
-        // rig movement. Anything you can consciously see here is too much.
-        const load = Math.abs(steer) * (this.speed / SURF_MAX);
-        if (load > 0.25) rig.addTrauma((load - 0.25) * 1.35 * h);
-
-        const fx = Math.sin(this.facing);
-        const fz = Math.cos(this.facing);
-
-        // Slope: heading downhill adds speed, uphill scrubs it.
-        this.terrain.normalAt(this.position.x, this.position.z, _n);
-        const slopeAssist = -(_n.x * fx + _n.z * fz) * 26;
-
-        // W / Up or Space adds a modest pump. Space is also the land sprint key,
-        // so the same action changes to a surf pump once the rider reaches water.
-        const pump = Math.max(Math.max(0, input.moveZ), input.spaceHeld ? 1 : 0);
-        let thrust = SURF_THRUST + slopeAssist + pump * SURF_PUMP;
-        if (input.moveZ < 0) thrust -= 14; // pull back to scrub speed
-
-        this.velocity.x += fx * thrust * h;
-        this.velocity.z += fz * thrust * h;
-
-        // Lateral grip: kill sideways velocity, but not entirely — the residual
-        // is what reads as a drift when you overcook the turn.
-        const rx = Math.cos(this.facing);
-        const rz = -Math.sin(this.facing);
-        const lat = this.velocity.x * rx + this.velocity.z * rz;
-        const grip = Math.min(1, SURF_GRIP * h);
-        this.velocity.x -= rx * lat * grip;
-        this.velocity.z -= rz * lat * grip;
-
-        // Quadratic drag → a natural terminal speed.
-        const s = Math.hypot(this.velocity.x, this.velocity.z);
-        if (s > 0.0001) {
-            const drag = SURF_DRAG * s * s * 0.02 + 0.9;
-            const k = Math.max(0, s - drag * h) / s;
-            this.velocity.x *= k;
-            this.velocity.z *= k;
-        }
-        if (s > SURF_MAX) {
-            const k = SURF_MAX / s;
-            this.velocity.x *= k;
-            this.velocity.z *= k;
-        }
+        const dx = _wish.x - this.velocity.x;
+        const dz = _wish.z - this.velocity.z;
+        const delta = Math.hypot(dx, dz);
+        const gain = delta > 0 ? Math.min(1, SURF_ACCEL * h / delta) : 0;
+        this.velocity.x += dx * gain;
+        this.velocity.z += dz * gain;
+        this.facing = angleDamp(this.facing, Math.atan2(_wish.x, _wish.z), 8, h);
     }
 
     /**
@@ -274,7 +241,7 @@ export class CharacterController {
         // travelling at nineteen metres a second. The gait is distance-driven, so
         // it answered that with a twelve-hertz cadence and the legs blurred. A
         // sprint is the fastest thing anyone walks at; above it, glide.
-        this.stepping = this.surf <= 0.5 && this.speed <= RUN_SPEED * 1.2 && this.speed > 0.12;
+        this.stepping = !this.airborne && this.surf <= 0.5 && this.speed <= RUN_SPEED * 1.2 && this.speed > 0.12;
         if (!this.stepping) {
             this.gaitPhase = 0;
             return;

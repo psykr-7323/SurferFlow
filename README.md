@@ -22,11 +22,10 @@ A browser and graphics device with WebGL 2 support are required.
 | Click the scene | Capture the pointer |
 | WASD / arrow keys | Move relative to the camera |
 | Mouse / wheel | Look / zoom |
-| Space or Shift + movement | Sprint on land |
+| Space | Jump on land or water |
+| Shift + movement | Run on land / surf faster |
 | Reach the water | Move the board under the feet and begin surfing |
-| Space or forward while surfing | Pump for extra speed |
-| Backward while surfing | Scrub speed |
-| 1–5 | Coastal effects; hold 2 for the ribbon |
+| WASD / arrows while surfing | Ride in the chosen direction; release to stop |
 
 ## Day and night
 
@@ -93,15 +92,14 @@ src/
   post/         post-processing chain
   render/       sky, shadows, depth prepass
   shaders/      surfaces, shared includes, effects, post shaders
-  spells/       procedural coastal effects
   terrain/      analytic coast, clipmap, local deformation
   vfx/          particles and wake emitters
   world/        ocean and coastal vegetation
 ```
 
 Build output is generated in `dist/`. No external textures, character assets or
-animation clips are required. The renderer retains procedural effect and
-material helpers from the project's earlier prototype.
+animation clips are required. The retired snow spell modules and their ice and water-strand shaders have been
+removed.
 
 ## Shader development
 
@@ -113,3 +111,21 @@ The product, package metadata and shader namespaces use the SurferFlow name.
 Stars are generated once from seeded random spherical positions, so their placement
 is stable and has no grid-centred bands. The first 22 metres of beach stay clear
 of grass, with shrubs and trees beginning farther inland.
+
+## Dependencies
+
+`@babylonjs/core` supplies the WebGL 2 engine, scene, meshes, materials and math.
+`vite` is a development dependency for serving source files, importing GLSL as raw
+text, and bundling a deployable static website. No extra material package is needed.
+
+## Movement and jumping
+
+Number-key effects have been removed. WASD controls movement and Shift increases
+running or surfing speed. The ocean retains its normal changing wave sets.
+
+Space jumps with the rider's current horizontal momentum, including when movement
+keys are released midair. Stationary jumps stay in place. Normal stop-on-release
+controls resume on landing. The rider and surfboard lift together at sea.
+
+The ocean remains visible from beneath waves. Sea-side terrain is clipped out in
+beauty and depth passes and lowered below troughs to prevent exposed sand offshore.

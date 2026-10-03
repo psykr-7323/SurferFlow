@@ -36,9 +36,6 @@ uniform float glintIntensity;
 uniform float glintGrazing;
 uniform float wakeTime;
 uniform float wakeDebug;
-uniform vec4 spellLightPos[4];
-uniform vec4 spellLightCol[4];
-uniform float spellLightCount;
 // -----------------------------------------------------------------------------
 // The snow-surf wake — shading.
 //
@@ -61,7 +58,6 @@ uniform float spellLightCount;
 
 #include<surferFlowNoise>
 #include<surferFlowShading>
-#include<surferFlowSpellLights>
 #include<surferFlowAtmosphere>
 #include<surferFlowWake>
 
@@ -223,13 +219,6 @@ void main() {
     vec3 skyRefl = textureLod(skyLUT, dirToLatLong(R), sqrt(roughness) * 6.0).rgb;
     vec3 skyTerm = skyRefl * fresnelSchlickRough(NdotV, f0, roughness) * ambientIntensity;
     color += skyTerm;
-
-    // Spell light, above the occlusion so the barrel darkens it along with
-    // everything else — a spell cast into the inside of a curl should light the
-    // cave, not shine through the wall of it.
-    if(spellLightCount > 0.5) {
-        color += spellLighting(world, N, V, albedo, thickness, sssStrength * 0.45, 1.5, spellLightPos, spellLightCol, spellLightCount);
-    }
 
     // ---- occlusion, applied last and to everything ------------------------
     //

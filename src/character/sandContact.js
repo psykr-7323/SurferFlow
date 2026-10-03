@@ -74,6 +74,8 @@ export class SandContact {
         this._prevX = ch.position.x;
         this._prevZ = ch.position.z;
 
+        if (ch.airborne) return;
+
         if (ch.surf > 0.02) this._surf(dt, moved);
         if (ch.surf < 0.98) this._walk(dt, moved);
 

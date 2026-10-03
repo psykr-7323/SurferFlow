@@ -96,6 +96,8 @@ void main() {
     // The analytic sky LUT provides environment reflections without an extra
     // scene-color copy or another render pass.
     vec3 reflected = reflect(-V, N);
+    // Steep faces must not reflect the LUT's sand-colored ground hemisphere.
+    reflected = normalize(vec3(reflected.x, max(reflected.y, 0.025), reflected.z));
     vec3 sky = textureLod(skyLUT, dirToLatLong(reflected), 0.5).rgb;
     float fresnel = 0.02 + 0.96 * pow(1.0 - NdotV, 5.0);
     vec3 skyFill = textureLod(skyLUT, vec2(0.5, 0.08), 2.0).rgb;

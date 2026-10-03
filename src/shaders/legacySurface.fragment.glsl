@@ -45,9 +45,6 @@ uniform float deformDepthScale;
 uniform float ambientIntensity;
 uniform float debugMode;
 uniform vec2 screenSize;
-uniform vec4 spellLightPos[4];
-uniform vec4 spellLightCol[4];
-uniform float spellLightCount;
 // -----------------------------------------------------------------------------
 // The snow material.
 //
@@ -70,7 +67,6 @@ uniform float spellLightCount;
 #include<surferFlowTerrain>
 #include<surferFlowDeform>
 #include<surferFlowShading>
-#include<surferFlowSpellLights>
 #include<surferFlowAtmosphere>
 
 
@@ -446,9 +442,6 @@ void main() {
     // The occlusion below scales this along with everything else: a spell casting
     // into an open field and a spell casting into the bottom of its own crater
     // are lighting very different amounts of visible snow.
-    if(spellLightCount > 0.5) {
-        color += spellLighting(world, N, V, albedo, thickness, sssStrength * (1.0 - rockExposed), sssRadius, spellLightPos, spellLightCol, spellLightCount);
-    }
 
     // --- glints ------------------------------------------------------------
     // Last, and added as radiance rather than modulated into the BRDF, because

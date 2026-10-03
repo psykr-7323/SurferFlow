@@ -20,9 +20,6 @@ import clipmapLib from "./lib/clipmap.glsl?raw";
 import deformLib from "./lib/deform.glsl?raw";
 import charSkinLib from "./lib/charSkin.glsl?raw";
 import wakeLib from "./lib/wake.glsl?raw";
-import spellLightsLib from "./lib/spellLights.glsl?raw";
-import waterLib from "./lib/water.glsl?raw";
-import crystalLib from "./lib/crystal.glsl?raw";
 import postCommonLib from "./lib/postCommon.glsl?raw";
 import ridgeLib from "./lib/ridge.glsl?raw";
 import coastLib from "./lib/coast.glsl?raw";
@@ -51,11 +48,6 @@ import wakeVert from "./wake.vertex.glsl?raw";
 import wakeFrag from "./wake.fragment.glsl?raw";
 import wakeDepthVert from "./wakeDepth.vertex.glsl?raw";
 import wakeDepthFrag from "./wakeDepth.fragment.glsl?raw";
-import waterVert from "./water.vertex.glsl?raw";
-import waterFrag from "./water.fragment.glsl?raw";
-import crystalVert from "./crystal.vertex.glsl?raw";
-import crystalFrag from "./crystal.fragment.glsl?raw";
-import crystalDepthVert from "./crystalDepth.vertex.glsl?raw";
 import vegetationVert from "./vegetation.vertex.glsl?raw";
 import vegetationPrepassVert from "./vegetationPrepass.vertex.glsl?raw";
 import vegetationDepthVert from "./vegetationDepth.vertex.glsl?raw";
@@ -70,7 +62,6 @@ import charPrepassVert from "./charPrepass.vertex.glsl?raw";
 import clothPrepassVert from "./clothPrepass.vertex.glsl?raw";
 import wakePrepassVert from "./wakePrepass.vertex.glsl?raw";
 import wakePrepassFrag from "./wakePrepass.fragment.glsl?raw";
-import crystalPrepassVert from "./crystalPrepass.vertex.glsl?raw";
 
 
 const INCLUDES = {
@@ -84,9 +75,6 @@ const INCLUDES = {
     surferFlowDeform: deformLib,
     surferFlowCharSkin: charSkinLib,
     surferFlowWake: wakeLib,
-    surferFlowSpellLights: spellLightsLib,
-    surferFlowWater: waterLib,
-    surferFlowCrystal: crystalLib,
     surferFlowPostCommon: postCommonLib,
     surferFlowRidge: ridgeLib,
     coastProfile: coastLib,
@@ -120,11 +108,6 @@ const SHADERS = {
     wakeDepthVertexShader: wakeDepthVert,
     wakeDepthPixelShader: wakeDepthFrag,
 
-    waterVertexShader: waterVert,
-    waterPixelShader: waterFrag,
-    crystalVertexShader: crystalVert,
-    crystalPixelShader: crystalFrag,
-    crystalDepthVertexShader: crystalDepthVert,
     coastVegetationVertexShader: vegetationVert,
     coastVegetationPixelShader: vegetationFrag,
     coastVegetationPrepassVertexShader: vegetationPrepassVert,
@@ -141,7 +124,6 @@ const SHADERS = {
     clothPrepassVertexShader: clothPrepassVert,
     wakePrepassVertexShader: wakePrepassVert,
     wakePrepassPixelShader: wakePrepassFrag,
-    crystalPrepassVertexShader: crystalPrepassVert,
 };
 
 let registered = false;

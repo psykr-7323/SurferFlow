@@ -2,8 +2,7 @@
  * Raw input state. Everything lands in one mutable struct that systems poll —
  * no events fired into game code, no per-frame allocation.
  *
- * Mouse look uses pointer lock. Space is context-sensitive: sprint on land,
- * pump while riding in the water.
+ * Mouse look uses pointer lock. Space jumps on land and water; Shift increases movement speed.
  */
 
 export const input = {
@@ -19,13 +18,8 @@ export const input = {
     // Zoom, consumed by the camera rig.
     zoomDelta: 0,
 
-    spaceHeld: false,
-    sprint: false, // shift or space while on land
-
-    /** @type {number} 0 = none, else 1..5 — set on keydown, cleared each frame */
-    spellPressed: 0,
-    /** @type {boolean} spell 2 (Ribbon) is a held cast */
-    spellHeld2: false,
+    jumpPressed: false, // one press, cleared after the frame
+    sprint: false, // Shift on land and water
 
     locked: false,
 };
@@ -58,9 +52,9 @@ export function initInput(canvas) {
         if (!input.locked) {
             // Drop held state so the character doesn't run off while unfocused.
             for (const k in keys) keys[k] = false;
-            input.spaceHeld = false;
+            input.jumpPressed = false;
             input.sprint = false;
-            input.spellHeld2 = false;
+
         }
     });
 
@@ -87,35 +81,23 @@ export function initInput(canvas) {
         if (e.code === "Space" && input.locked) e.preventDefault();
         if (e.repeat) return;
         keys[e.code] = true;
+        if (e.code === "Space") input.jumpPressed = true;
 
-        const n = SPELL_KEYS[e.code];
-        if (n) {
-            input.spellPressed = n;
-            if (n === 2) input.spellHeld2 = true;
-        }
     });
 
     window.addEventListener("keyup", (e) => {
         if (e.code === "Space" && input.locked) e.preventDefault();
         keys[e.code] = false;
-        if (SPELL_KEYS[e.code] === 2) input.spellHeld2 = false;
+
     });
 
     window.addEventListener("blur", () => {
         for (const k in keys) keys[k] = false;
-        input.spaceHeld = false;
+        input.jumpPressed = false;
         input.sprint = false;
-        input.spellHeld2 = false;
+
     });
 }
-
-const SPELL_KEYS = {
-    Digit1: 1,
-    Digit2: 2,
-    Digit3: 3,
-    Digit4: 4,
-    Digit5: 5,
-};
 
 /** Resolve held keys into movement axes. Called once per frame before update. */
 export function pollInput() {
@@ -135,8 +117,7 @@ export function pollInput() {
     input.moveX = x;
     input.moveZ = z;
     input.moving = len > 0.001;
-    input.spaceHeld = !!keys.Space;
-    input.sprint = !!(keys.ShiftLeft || keys.ShiftRight || input.spaceHeld);
+    input.sprint = !!(keys.ShiftLeft || keys.ShiftRight);
 }
 
 /** Clear per-frame accumulators. Called at the very end of the frame. */
@@ -144,7 +125,8 @@ export function endFrame() {
     input.lookX = 0;
     input.lookY = 0;
     input.zoomDelta = 0;
-    input.spellPressed = 0;
+
+    input.jumpPressed = false;
 }
 
 export function isDown(code) {
