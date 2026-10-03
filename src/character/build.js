@@ -250,14 +250,18 @@ function limbRings(x0, y0, z0, x1, y1, z1, r0, r1, steps, boneA, boneB, ao, from
 /** Beach rider: uncovered face, bare limbs, board shorts and sunglasses. */
 export function buildBody(scene) {
     const B = new Builder();
-    // A sleeveless linen shirt above two separate board-short legs.
+    // Open shirt hem avoids a pointed linen cap protruding below the waist.
     const torso = [[0.94, 0.153, 0.124], [1.08, 0.146, 0.115],
         [1.26, 0.180, 0.126], [1.38, 0.180, 0.120], [1.44, 0.140, 0.105]];
     loft(B, torso.map(([y, rx, rz]) => ring(0, y, 0, rx, rz, 0.94, spineBones(y))),
-        M_LINEN, [0, 0, 1], true, true);
-    loft(B, [ring(0, 0.93, 0, 0.159, 0.126, 0.92, [B_ROOT, 1, 0, 0]),
-        ring(0, 0.98, 0, 0.158, 0.126, 0.95, [B_ROOT, 1, 0, 0])],
-        M_SHORTS, [0, 0, 1], false, false);
+        M_LINEN, [0, 0, 1], false, true);
+    // Continuous waist/seat shell covers the gap between the two leg tubes.
+    // Root weighting keeps it attached to the pelvis as the thighs spread.
+    loft(B, [ring(0, 0.99, 0, 0.170, 0.143, 0.96, [B_ROOT, 1, 0, 0]),
+        ring(0, 0.93, -0.003, 0.184, 0.152, 0.95, [B_ROOT, 1, 0, 0]),
+        ring(0, 0.84, -0.005, 0.190, 0.153, 0.95, [B_ROOT, 1, 0, 0]),
+        ring(0, 0.78, 0, 0.175, 0.143, 0.94, [B_ROOT, 1, 0, 0])],
+        M_SHORTS, [0, 0, 1], false, true);
     loft(B, [ring(0, 1.43, 0, 0.059, 0.057, 0.90, [B_NECK, 1, 0, 0]),
         ring(0, 1.56, 0.005, 0.058, 0.057, 0.93, [B_HEAD, 1, 0, 0])],
         M_SKIN, [0, 0, 1], false, false);
@@ -311,8 +315,8 @@ export function buildBody(scene) {
         const ft = side === 0 ? B_FOOT_L : B_FOOT_R;
         loft(B, limbRings(sign * 0.100, 0.90, 0, sign * 0.100, 0.46, 0,
             0.079, 0.055, 6, th, sh, 0.94, 0.74, 1.0), M_SKIN, [0, 0, 1], true, false);
-        loft(B, [ring(sign * 0.100, 0.91, 0, 0.109, 0.114, 0.92, [th, 1, 0, 0]),
-            ring(sign * 0.100, 0.78, 0.005, 0.112, 0.116, 0.95, [th, 1, 0, 0]),
+        loft(B, [ring(sign * 0.100, 0.94, 0, 0.119, 0.132, 0.96, [B_ROOT, 0.75, th, 0.25]),
+            ring(sign * 0.100, 0.82, 0.005, 0.119, 0.130, 0.96, [B_ROOT, 0.25, th, 0.75]),
             ring(sign * 0.100, 0.63, 0.006, 0.101, 0.105, 0.93, [th, 1, 0, 0])],
             M_SHORTS, [0, 0, 1], false, false);
         loft(B, [ring(sign * 0.100, 0.63, 0.006, 0.102, 0.106, 0.95, [th, 1, 0, 0]),

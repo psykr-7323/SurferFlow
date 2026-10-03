@@ -34,7 +34,7 @@
  * Toggling a post-process off detaches it from the camera and reshuffles which
  * texture every remaining pass renders into, mid-frame. Instead each pass
  * early-outs in its own shader and becomes a full-screen copy — a fraction of a
- * millisecond, for a settings overlay that is hidden by default.
+ * millisecond, while keeping the chain stable for development tuning.
  *
  * ## Jitter
  *

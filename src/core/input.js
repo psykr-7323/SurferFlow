@@ -34,16 +34,10 @@ const keys = Object.create(null);
 
 const LOOK_SCALE = 0.0022;
 
-/** @type {(() => void)|null} */
-let onToggleOverlay = null;
-
 /**
  * @param {HTMLCanvasElement} canvas
- * @param {{ onToggleOverlay?: () => void }} [hooks]
  */
-export function initInput(canvas, hooks) {
-    onToggleOverlay = hooks?.onToggleOverlay ?? null;
-
+export function initInput(canvas) {
     canvas.addEventListener("click", () => {
         if (!input.locked) canvas.requestPointerLock();
     });
@@ -77,12 +71,6 @@ export function initInput(canvas, hooks) {
 
     window.addEventListener("keydown", (e) => {
         if (e.code === "Space" && input.locked) e.preventDefault();
-        // Overlay toggle works whether or not the pointer is locked.
-        if (e.code === "F1" || e.code === "Backquote") {
-            e.preventDefault();
-            onToggleOverlay?.();
-            return;
-        }
         if (e.repeat) return;
         keys[e.code] = true;
 

@@ -1,7 +1,7 @@
 /**
  * Deterministic, player-centred coastal plants.
  *
- * Three shared low-poly meshes (grass, scrub and wind-shaped pines) are drawn
+ * Four shared meshes (sea oats, scrub, pines and spreading coastal oaks) are drawn
  * with thin instances. Placement is hashed from absolute world-grid cells, so
  * crossing the bounded render window never changes a plant's identity. The
  * window is deliberately much smaller than the terrain clipmap, leaves the
@@ -61,6 +61,7 @@ export class CoastalVegetation {
             this._createItem("duneGrass", makeGrassGeometry(), 1, Math.min(220, RADIUS)),
             this._createItem("coastalScrub", makeScrubGeometry(), 2, Math.min(370, RADIUS)),
             this._createItem("coastalPines", makePineGeometry(), 2, RADIUS),
+            this._createItem("coastalOaks", makeOakGeometry(), 2, RADIUS),
         ];
 
         for (const item of this.items) {
@@ -299,11 +300,16 @@ export class CoastalVegetation {
     }
 
     _rebuild(focusX, focusZ, density) {
-        const lists = [[], [], []];
+        const lists = [[], [], [], []];
         if (density > 0) {
             scatterCover(lists[0], focusX, focusZ, this.items[0].radius, density, this.terrain);
             scatterScrub(lists[1], focusX, focusZ, this.items[1].radius, density, this.terrain);
-            scatterTrees(lists[2], focusX, focusZ, this.items[2].radius, density, this.terrain);
+            const trees = [];
+            scatterTrees(trees, focusX, focusZ, this.items[2].radius, density, this.terrain);
+            for (const tree of trees) {
+                const oak = hash01(Math.floor(tree.x * 2), Math.floor(tree.z * 2), 701) > 0.38;
+                lists[oak ? 3 : 2].push(tree);
+            }
         }
         for (let i = 0; i < this.items.length; i++) {
             this._uploadInstances(this.items[i], lists[i]);
@@ -352,8 +358,14 @@ export class CoastalVegetation {
     }
 }
 
+// Broad patches make groves and clearings rather than a uniform plant grid.
+function coastalPatch(x, z) {
+    return smooth01(0.50 + 0.26 * Math.sin(x * 0.037 + Math.sin(z * 0.026))
+        + 0.24 * Math.sin(z * 0.049 - x * 0.018));
+}
+
 function scatterCover(out, focusX, focusZ, radius, density, terrain) {
-    const spacing = 4.8;
+    const spacing = 2.8;
     const buildRadius = radius + REBUILD_MARGIN;
     visitCells(focusX, focusZ, buildRadius, spacing, (gx, gz, x0, z0, d2) => {
         const shore = terrain.shorelineAt(x0) - z0;
@@ -364,7 +376,8 @@ function scatterCover(out, focusX, focusZ, radius, density, terrain) {
         const x = x0 + (rx - 0.5) * spacing * 0.76;
         const z = z0 + (rz - 0.5) * spacing * 0.76;
         const plantDistance = (x - focusX) ** 2 + (z - focusZ) ** 2;
-        const chance = Math.min(0.92, 0.4 * density * band);
+        const patch = coastalPatch(x, z);
+        const chance = Math.min(0.94, (0.36 + patch * 0.48) * density * band);
         if (plantDistance > buildRadius * buildRadius || hash01(gx, gz, 101) > chance) return;
         out.push({
             x, z, y: terrain.heightAt(x, z),
@@ -380,7 +393,7 @@ function scatterCover(out, focusX, focusZ, radius, density, terrain) {
 }
 
 function scatterScrub(out, focusX, focusZ, radius, density, terrain) {
-    const spacing = 13.5;
+    const spacing = 8.5;
     const buildRadius = radius + REBUILD_MARGIN;
     visitCells(focusX, focusZ, buildRadius, spacing, (gx, gz, x0, z0, d2) => {
         const shore = terrain.shorelineAt(x0) - z0;
@@ -389,11 +402,11 @@ function scatterScrub(out, focusX, focusZ, radius, density, terrain) {
         const x = x0 + (hash01(gx, gz, 13) - 0.5) * spacing * 0.68;
         const z = z0 + (hash01(gx, gz, 47) - 0.5) * spacing * 0.68;
         if ((x - focusX) ** 2 + (z - focusZ) ** 2 > buildRadius * buildRadius) return;
-        if (hash01(gx, gz, 107) > Math.min(0.82, 0.4 * density * band)) return;
+        if (hash01(gx, gz, 107) > Math.min(0.90, (0.32 + coastalPatch(x, z) * 0.40) * density * band)) return;
         out.push({
             x, z, y: terrain.heightAt(x, z),
             yaw: hash01(gx, gz, 181) * PI2,
-            scale: 0.75 + hash01(gx, gz, 251) * 0.66,
+            scale: 1.0 + hash01(gx, gz, 251) * 0.95,
         });
     });
     scatterClumps(out, focusX, focusZ, buildRadius, density, terrain, {
@@ -404,7 +417,7 @@ function scatterScrub(out, focusX, focusZ, radius, density, terrain) {
 }
 
 function scatterTrees(out, focusX, focusZ, radius, density, terrain) {
-    const spacing = 23.5;
+    const spacing = 15.5;
     const buildRadius = radius + REBUILD_MARGIN;
     visitCells(focusX, focusZ, buildRadius, spacing, (gx, gz, x0, z0, d2) => {
         const shore = terrain.shorelineAt(x0) - z0;
@@ -416,7 +429,7 @@ function scatterTrees(out, focusX, focusZ, radius, density, terrain) {
         const x = x0 + (hash01(gx, gz, 17) - 0.5) * spacing * 0.64;
         const z = z0 + (hash01(gx, gz, 53) - 0.5) * spacing * 0.64;
         if ((x - focusX) ** 2 + (z - focusZ) ** 2 > buildRadius * buildRadius) return;
-        if (hash01(gx, gz, 113) > Math.min(0.96, 0.42 * density * band)) return;
+        if (hash01(gx, gz, 113) > Math.min(0.96, (0.30 + coastalPatch(x, z) * 0.48) * density * band)) return;
         out.push({
             x, z, y: terrain.heightAt(x, z),
             yaw: hash01(gx, gz, 191) * PI2,
@@ -424,7 +437,7 @@ function scatterTrees(out, focusX, focusZ, radius, density, terrain) {
         });
     });
     scatterClumps(out, focusX, focusZ, buildRadius, density, terrain, {
-        tag: 3220, cellX: 84, cellZ: 60, shoreMin: 32, shoreMax: 144,
+        tag: 3220, cellX: 60, cellZ: 48, shoreMin: 32, shoreMax: 144,
         chance: 0.4, offsets: [[-8.6, -1.6], [0.8, -6.0], [8.2, 1.8], [-1.8, 7.2]],
         scaleMin: 1.35, scaleMax: 2.15,
     });
@@ -579,7 +592,19 @@ function makeGrassGeometry() {
         const color = i % 3 === 0 ? [0.17, 0.30, 0.072] : i % 3 === 1 ? [0.13, 0.25, 0.052] : [0.22, 0.36, 0.092];
         addBlade(b, Math.cos(a), Math.sin(a), h, w, color);
     }
-    return b.finish("coastal grass tuft");
+    // Tall golden seed heads make the foredune read as sea oats.
+    for (let i = 0; i < 3; i++) {
+        const x = (i - 1) * 0.12;
+        const z = i * 0.09;
+        const h = 1.12 + i * 0.12;
+        addCylinder(b, x, 0, z, 0.008, 0.004, h, 4,
+            [0.18, 0.25, 0.055], [0.39, 0.35, 0.12]);
+        for (let j = 0; j < 3; j++) {
+            addEllipsoid(b, x + 0.025 * j, h - j * 0.065, z,
+                0.026, 0.045, 0.013, 4, 2, [0.35, 0.25, 0.07], [0.63, 0.48, 0.19]);
+        }
+    }
+    return b.finish("coastal sea oats");
 }
 
 function addBlade(b, dx, dz, height, width, color) {
@@ -625,6 +650,21 @@ function makeScrubGeometry() {
         addEllipsoid(b, l[0], l[1], l[2], l[3], l[4], l[5], 7, 4, low, high);
     }
     return b.finish("coastal scrub");
+}
+
+function makeOakGeometry() {
+    const b = new GeometryBuilder();
+    addCylinder(b, 0, 0, 0, 0.22, 0.09, 3.3, 8,
+        [0.095, 0.060, 0.028], [0.16, 0.10, 0.045]);
+    // Salt-wind shaped broad canopy, with overlapping asymmetric crowns.
+    const crowns = [[-1.0, 3.2, 0.1, 1.45, 0.95, 1.25],
+        [0.9, 3.55, -0.35, 1.35, 1.1, 1.30],
+        [0.1, 4.1, 0.3, 1.6, 1.05, 1.45],
+        [0.4, 2.9, 1.0, 1.15, 0.85, 1.0]];
+    for (const c of crowns) {
+        addEllipsoid(b, ...c, 10, 6, [0.055, 0.14, 0.035], [0.16, 0.29, 0.07]);
+    }
+    return b.finish("spreading coastal oak");
 }
 
 function makePineGeometry() {

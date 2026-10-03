@@ -131,6 +131,15 @@ fn main(input: FragmentInputs) -> FragmentOutputs {
     let saturated = 1.0 - smoothstep(0.08, 1.35, shoreDistance);
     var albedo = mix(drySand, dampSand, dampness * 0.90);
     albedo = mix(albedo, saturatedSand, saturated * 0.82);
+    // Backdunes carry green groundcover in the same broad patches as the plants.
+    let grove = 0.50 + 0.26 * sin(world.x * 0.037 + sin(world.z * 0.026))
+        + 0.24 * sin(world.z * 0.049 - world.x * 0.018);
+    let inland = smoothstep(14.0, 48.0, shoreDistance);
+    let cover = inland * smoothstep(0.24, 0.80, grove) * 0.85;
+    let grassSoil = mix(vec3f(0.19, 0.23, 0.065), vec3f(0.23, 0.31, 0.085), grove)
+        * (1.0 + grain * 0.06 + broadTone * 0.10);
+    albedo = mix(albedo, grassSoil, cover);
+
     let rippleContrast = mix(0.022, 0.010, dampness) * (1.0 - saturated * 0.72);
     albedo *= 1.0 + ripple * rippleContrast;
 

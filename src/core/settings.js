@@ -2,8 +2,7 @@
  * Central tuning + toggle store.
  *
  * `S` is a flat plain object read directly by systems every frame — no getters,
- * no proxies, no allocation. `SCHEMA` is metadata the settings overlay builds
- * its widgets from, and `onChange` lets systems react to edits that need work
+ * no proxies, no allocation. `onChange` lets systems react to edits that need work
  * (rebuilding a render target, re-freezing a material) rather than just being
  * sampled next frame.
  */
@@ -106,7 +105,7 @@ export const S = {
     // ------------------------------------------------------------------ post
     taa: true,
     ssr: true,
-    dof: true,
+    dof: false,
     bloom: true,
     grain: true,
     sharpen: true,
@@ -129,120 +128,6 @@ export const S = {
     // ----------------------------------------------------------------- debug
     debugView: "beauty", // beauty | deform | normals | depth | cascades | footprint | fineNormals
 };
-
-/**
- * Widget metadata. `t`: "f" float slider, "b" bool toggle, "e" enum.
- * @type {{group:string, items:Array<{k:string,l:string,t:string,min?:number,max?:number,step?:number,opts?:string[]}>}[]}
- */
-export const SCHEMA = [
-    {
-        group: "Sun & Sky",
-        items: [
-            { k: "skyMode", l: "Sky control", t: "e", opts: ["time of day", "manual sun"] },
-            { k: "timeOfDay", l: "Time of day (hour)", t: "f", min: 0, max: 24, step: 0.05 },
-            { k: "dayNightCycle", l: "Day / night cycle", t: "b" },
-            { k: "dayLengthMinutes", l: "Full day / night cycle (minutes)", t: "f", min: 1, max: 60, step: 1 },
-            { k: "autoExposure", l: "Adaptive exposure", t: "b" },
-            { k: "sunAzimuth", l: "Azimuth", t: "f", min: 0, max: 360, step: 1 },
-            { k: "sunElevation", l: "Manual elevation", t: "f", min: -60, max: 80, step: 0.1 },
-            { k: "sunIntensity", l: "Intensity", t: "f", min: 0, max: 10, step: 0.05 },
-            { k: "sunTempWarm", l: "Warmth", t: "f", min: 0, max: 1, step: 0.01 },
-            { k: "ambientIntensity", l: "Ambient", t: "f", min: 0, max: 3, step: 0.01 },
-            { k: "ambientBlue", l: "Ambient blue", t: "f", min: 0, max: 2, step: 0.01 },
-        ],
-    },
-    {
-        group: "Atmosphere",
-        items: [
-            { k: "fogDensity", l: "Fog density", t: "f", min: 0, max: 0.03, step: 0.0001 },
-            { k: "fogHeightFalloff", l: "Height falloff", t: "f", min: 0, max: 0.3, step: 0.001 },
-            { k: "aerialStrength", l: "Aerial persp.", t: "f", min: 0, max: 2, step: 0.01 },
-            { k: "windDirection", l: "Wind dir", t: "f", min: 0, max: 360, step: 1 },
-            { k: "windStrength", l: "Wind strength", t: "f", min: 0, max: 2, step: 0.01 },
-            { k: "showMountains", l: "Far range", t: "b" },
-            { k: "mountainHeight", l: "Range height", t: "f", min: 0, max: 2500, step: 10 },
-            { k: "showLightShafts", l: "Light shafts", t: "b" },
-            { k: "shaftStrength", l: "Shaft amt", t: "f", min: 0, max: 2, step: 0.01 },
-        ],
-    },
-    {
-        group: "Coast & Water",
-        items: [
-            { k: "oceanWaveSets", l: "Changing wave sets", t: "b" },
-            { k: "oceanWaveSetSeconds", l: "Wave set interval (seconds)", t: "f", min: 10, max: 120, step: 1 },
-            { k: "oceanWaveHeight", l: "Wave height", t: "f", min: 0, max: 2, step: 0.01 },
-            { k: "oceanWaveSpeed", l: "Wave speed", t: "f", min: 0, max: 2, step: 0.01 },
-            { k: "oceanFoamStrength", l: "Foam strength", t: "f", min: 0, max: 2, step: 0.01 },
-            { k: "sandDetailStrength", l: "Sand detail", t: "f", min: 0, max: 2, step: 0.01 },
-            { k: "wetSandWidth", l: "Wet sand width (m)", t: "f", min: 3, max: 18, step: 0.1 },
-            { k: "oceanColorSpan", l: "Deep color span (m)", t: "f", min: 50, max: 260, step: 1 },
-            { k: "coastlineVariation", l: "Shore shape", t: "f", min: 0, max: 2, step: 0.01 },
-            { k: "showGreenery", l: "Coastal greenery", t: "b" },
-            { k: "greeneryDensity", l: "Greenery density", t: "f", min: 0, max: 2, step: 0.01 },
-            { k: "showWake", l: "Surf wake", t: "b" },
-            { k: "wakeSpray", l: "Wake droplets", t: "f", min: 0, max: 2.5, step: 0.01 },
-        ],
-    },
-    {
-        group: "Character & Effects",
-        items: [
-            { k: "glintIntensity", l: "Glint", t: "f", min: 0, max: 2, step: 0.01 },
-            { k: "glintGrazing", l: "Glint gate", t: "f", min: 0, max: 1, step: 0.01 },
-            { k: "sssStrength", l: "SSS strength", t: "f", min: 0, max: 3, step: 0.01 },
-            { k: "windStreaks", l: "Speed streaks", t: "b" },
-            { k: "streakStrength", l: "Streak amt", t: "f", min: 0, max: 2, step: 0.01 },
-        ],
-    },
-    {
-        group: "Deformation",
-        items: [
-            { k: "deformDepth", l: "Depth", t: "f", min: 0, max: 3, step: 0.01 },
-            { k: "deformBerm", l: "Berm mass", t: "f", min: 0, max: 3, step: 0.01 },
-            { k: "refillRate", l: "Refill rate", t: "f", min: 0, max: 4, step: 0.01 },
-        ],
-    },
-    {
-        group: "Spells",
-        items: [
-            { k: "showSpells", l: "Spells", t: "b" },
-            { k: "spellLight", l: "Spell light", t: "f", min: 0, max: 3, step: 0.01 },
-            { k: "spellSpray", l: "Spell spray", t: "f", min: 0, max: 2.5, step: 0.01 },
-            { k: "waterDepthTint", l: "Water depth", t: "f", min: 0, max: 3, step: 0.01 },
-        ],
-    },
-    {
-        group: "Post",
-        items: [
-            { k: "taa", l: "TAA", t: "b" },
-            { k: "ssr", l: "Surface reflections", t: "b" },
-            { k: "dof", l: "Depth of field", t: "b" },
-            { k: "bloom", l: "Bloom", t: "b" },
-            { k: "grain", l: "Film grain", t: "b" },
-            { k: "sharpen", l: "Sharpen", t: "b" },
-            { k: "tonemap", l: "Tonemap", t: "e", opts: ["agx", "aces", "none"] },
-            { k: "exposure", l: "Exposure", t: "f", min: 0.01, max: 0.6, step: 0.005 },
-            { k: "contrast", l: "Contrast", t: "f", min: 0.5, max: 2, step: 0.01 },
-            { k: "bloomStrength", l: "Bloom amt", t: "f", min: 0, max: 1, step: 0.005 },
-            { k: "grainStrength", l: "Grain amt", t: "f", min: 0, max: 0.1, step: 0.001 },
-            { k: "sharpenStrength", l: "Sharpen amt", t: "f", min: 0, max: 1, step: 0.01 },
-        ],
-    },
-    {
-        group: "Systems",
-        items: [
-            { k: "showTerrain", l: "Terrain", t: "b" },
-            { k: "showCharacter", l: "Character", t: "b" },
-            { k: "wireframe", l: "Wireframe", t: "b" },
-            { k: "freezeTime", l: "Freeze time", t: "b" },
-            { k: "resolutionScale", l: "Resolution", t: "f", min: 0.5, max: 1.5, step: 0.05 },
-            {
-                k: "debugView", l: "Debug view", t: "e",
-                opts: ["beauty", "deform", "normals", "depth", "cascades", "footprint",
-                       "fineNormals", "shadow", "ndotl", "shadowMap", "albedo"],
-            },
-        ],
-    },
-];
 
 /** Quality presets. Only the keys that differ from `ultra` need listing. */
 export const PRESETS = {
@@ -279,7 +164,7 @@ export function onChange(keys, fn) {
 
 /**
  * Write a settings value and notify subscribers. Never called from the render
- * loop — only from the overlay and preset application.
+ * loop — only from development tooling and preset application.
  * @param {string} k
  * @param {number|boolean|string} v
  */

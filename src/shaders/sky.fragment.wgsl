@@ -166,9 +166,10 @@ fn main(input: FragmentInputs) -> FragmentOutputs {
     // aureole: forward-scattered light in the first few degrees, which at this
     // sun elevation is a large part of why the horizon reads warm.
     let mu = dot(dir, uniforms.solarDir);
-    let discCos = cos(0.0046);
+    let discRadius = 0.009;
+    let discCos = cos(discRadius);
     if (mu > discCos && uniforms.solarDir.y > -0.015) {
-        let r = sqrt(max(0.0, 1.0 - mu * mu)) / 0.0046;
+        let r = sqrt(max(0.0, 1.0 - mu * mu)) / discRadius;
         let limb = pow(max(0.0, 1.0 - r * r * 0.72), 0.42);
         col += uniforms.sunColor * uniforms.sunIntensity * 32.0 * limb
             * smoothstep(-0.015, 0.015, uniforms.solarDir.y);
@@ -180,7 +181,10 @@ fn main(input: FragmentInputs) -> FragmentOutputs {
     let moonMu = dot(dir, -uniforms.solarDir);
     let moonEdge = smoothstep(cos(0.010), cos(0.008), moonMu);
     let moonTexture = 0.72 + noise2(dir.xz * 580.0) * 0.20;
-    col += vec3f(1.2, 1.5, 2.0) * moonEdge * moonTexture * uniforms.nightAmount;
+    let moonrise = smoothstep(-0.015, 0.025, -uniforms.solarDir.y);
+    col += vec3f(1.2, 1.5, 2.0) * moonEdge * moonTexture * uniforms.nightAmount * moonrise;
+    col += vec3f(0.08, 0.11, 0.20) * pow(max(0.0, moonMu), 600.0)
+        * uniforms.nightAmount * moonrise;
     let starGrid = uv * vec2f(1200.0, 600.0);
     let starCell = floor(starGrid);
     let starRandom = fract(sin(dot(starCell, vec2f(127.1, 311.7))) * 43758.5453);

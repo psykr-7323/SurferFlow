@@ -26,17 +26,12 @@ A browser and graphics device with WebGL 2 support are required.
 | Space or forward while surfing | Pump for extra speed |
 | Backward while surfing | Scrub speed |
 | 1–5 | Coastal effects; hold 2 for the ribbon |
-| F1 / backtick | Open settings and performance controls |
 
 ## Day and night
 
-The scene starts in daylight at 10:00 and runs a twelve-minute day/night cycle.
+The scene starts in daylight at 10:00.
 A full sunrise, daylight, sunset and moonlit night lasts **five minutes** by default.
 The sun and moon follow opposite continuous arcs, and stars twinkle at night.
-
-The settings panel exposes **Time of day (hour)**, **Day / night cycle**, and
-**Full day / night cycle (minutes)**. Switch the cycle off to keep a chosen time. **Sky
-control → manual sun** enables the azimuth and elevation sliders directly.
 
 One shared sky texture drives the visible sky, ambient lighting, reflections,
 and atmospheric haze. The sun illuminates the scene by day; the moon and stars
@@ -59,11 +54,11 @@ A shared swash front drives foam on the water and wet sand. Breaking bands,
 crest foam, and a V-shaped surfer wake add separate motion cues. The foam is
 lit by the same daylight or moonlight as the water. Waves smoothly alternate between smaller and larger sets every **30 seconds**.
 The same changing height drives the visible water and rider grounding.
-F1 exposes the wave-set interval and toggle, wave height,
-wave speed, foam strength, wet-sand width and coastline variation.
+Tuning constants live in `src/core/settings.js`.
 
-Grass, dune scrub and coastal trees use deterministic placement in a bounded
-window around the rider. Density and visibility are configurable.
+Sea oats, dune scrub, pines and spreading coastal oaks form layered groves
+with grassy backdunes and open beach sand. Placement is deterministic within a
+bounded window around the rider.
 
 ## Rider
 
@@ -82,8 +77,7 @@ transforms share one small texture upload per frame.
 - Shared shader includes for coast placement, skinning, shading and shadows.
 - Cascaded shadows and a matching depth prepass.
 - Temporal antialiasing, bloom, depth of field, tone mapping and sharpening.
-- Settings and CPU performance readouts in the F1 panel. GPU timing is unavailable
-  on this backend and is displayed as a dash.
+- Automatic sky and wave cycles with no settings overlay.
 - The application inspection handle is `SurferFlow` in the browser console.
 
 Shader uniforms must be registered before a procedural texture compiles. The sky

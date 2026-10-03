@@ -21,7 +21,6 @@ import { SandContact } from "./character/sandContact.js";
 import { SprayField } from "./vfx/particles.js";
 import { SurfWake } from "./vfx/surfWake.js";
 import { SpellSystem } from "./spells/spellSystem.js";
-import { Overlay } from "./ui/overlay.js";
 import { Sky } from "./render/sky.js";
 import { ShadowSystem } from "./render/shadows.js";
 import { Terrain } from "./terrain/terrain.js";
@@ -155,8 +154,7 @@ async function boot() {
 
     const post = new PostChain(scene, rig.camera, depthPass, sky);
 
-    const overlay = new Overlay({ rig, character });
-    initInput(canvas, { onToggleOverlay: () => overlay.toggle() });
+    initInput(canvas);
 
     // ------------------------------------------------------------- warm-up
     // Everything that can compile, compiles here — behind the loading screen.
@@ -217,7 +215,7 @@ async function boot() {
 
         pollInput();
 
-        // Per-system timings are CPU-side; the overlay labels them accordingly.
+        // Per-system CPU timings remain available to development tooling.
         const tFrame = performance.now();
 
         character.update(dt, rig);
@@ -290,18 +288,16 @@ async function boot() {
 
         sample(dtMs);
         checkSpike(dtMs);
-        overlay.update(dtMs, engine);
 
         endFrame();
     });
 
     await loading.done();
     document.getElementById("ride-hud")?.classList.add("show");
-    setTimeout(() => overlay.resetSpikes(), 800);
 
     globalThis.SurferFlow = {
         engine, scene, rig, character, figure, contact, spray, wake, spells,
-        overlay, terrain, ocean, vegetation, sky, shadows, post, depthPass,
+        terrain, ocean, vegetation, sky, shadows, post, depthPass,
         S, input, perfStats: stats,
     };
 }
